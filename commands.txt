@@ -1,0 +1,18 @@
+say 2 1 3#7thace 4#witwix
+test 1 1
+allowpasta 3 1
+denypasta 3 1
+wr 1 1
+editwr 3 1
+filter 3 1
+join 3 1
+set 3 1
+whois 2 1
+whoami 2 1
+accountage 3 1
+addcommand 3 2
+videolookup 2 2
+createmulti 3 1
+quote 2 1
+deathgame 3 1
+host 4 1

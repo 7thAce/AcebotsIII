@@ -1,0 +1,12 @@
+multi#noobest 1 1 http://kadgar.net/live/excessiveprofanity/noobest/professorbroman
+speeddex#azorae 1 1 https://docs.google.com/spreadsheets/d/1LofRKwX4PkboxzkwRF5VL2_poEwZvPTx4qrBxIzr2Bs/edit?pli=1#gid=0
+necro#professorbroman 1 1 Necrothon Contest Details! http://necrodancer.com/necrothon/
+106%#cirno_tv 1 1 106% is 100% (All light/dark levels, Bandages, Warp Zones) and 6 glitch worlds that add 1% each.
+solocoop#cirno_tv 1 1 Using a bind on tab for "in_forceuser", Cirno can switch between control of each character.
+multi#excessiveprofanity 1 1 http://kadgar.net/live/excessiveprofanity/noobest/professorbroman
+!nosrl#professorbroman 1 1 "[nosrl] means the streamer is not doing a speedrun, and therefore will not be picked up by speedrunslive.com"
+multi#professorbroman 1 1 http://kadgar.net/live/professorbroman/edemonster/
+backupplaylist#professorbroman 1 1 https://www.youtube.com/user/benwca/playlists
+multi#cirno_tv 1 1 http://kadgar.net/live/cirno_tv/cirno_tv/
+flying#cirno_tv 1 1 Funnel Flying is done by crouching in a funnel, then leaving the funnel.  If you do not crouch again or move the portals (if applicable), then the effect is preserved.
+multi#edemonster 1 1 http://kadgar.net/live/professorbroman/edemonster/
