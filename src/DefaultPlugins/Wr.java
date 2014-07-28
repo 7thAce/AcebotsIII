@@ -70,7 +70,6 @@ public class Wr {
                     {
                         HashMap<String, String> streamInfo = new HashMap<String, String>();
                         try {
-                            System.out.println(channel);
                             URL url = new URL("http://api.justin.tv/api/stream/list.json?jsonp=&channel=" + channel.substring(1));
                             reader = new BufferedReader(new InputStreamReader(url.openStream()));
                             String blah = reader.readLine();
@@ -374,6 +373,7 @@ public class Wr {
 	        {
             	if (acebotCore.hasAccess(channel, sender, wrEditorChannelAccess, wrEditorUserAccess, wrEditorAccessExceptionMap))
             	{
+                    args = message.split(" ", 2)[1].split(" ");
                     if (args.length < 4)
                     {
                         acebotCore.addToQueue(channel, "Invalid syntax, use !editwr <game> <time> <runner> <categories>", Integer.parseInt(source));
