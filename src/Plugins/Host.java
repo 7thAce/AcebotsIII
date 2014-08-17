@@ -61,7 +61,7 @@ public class Host {
             {
                 HashMap<String, String> streamInfo = new HashMap<String, String>();
                 try {
-                    URL url = new URL("http://api.justin.tv/api/stream/list.json?jsonp=&channel=" + channel.substring(1));
+                    URL url = new URL("https://api.twitch.tv/kraken/channels/" + channel.substring(1));
                     BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
                     String blah = reader.readLine();
                     if(!(blah.equals("[]"))){
@@ -100,7 +100,7 @@ public class Host {
 
                     streamInfo = new HashMap<String, String>();
                     try {
-                        URL url = new URL("http://api.justin.tv/api/stream/list.json?jsonp=&channel=" + hostingTarget);
+                        URL url = new URL("https://api.twitch.tv/kraken/channels/" + hostingTarget);
                         BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
                         String blah = reader.readLine();
                         if(!(blah.equals("[]"))){
@@ -110,7 +110,7 @@ public class Host {
                                 String[] keyValue = data[i].split("\":");
                                 streamInfo.put(keyValue[0].toLowerCase(), stripQuotes(keyValue[1]));
                             }
-                            acebotCore.addToQueue(channel, hostingTarget + " is playing " + streamInfo.get("meta_game") + " : " + streamInfo.get("status") + ".", Integer.parseInt(source));
+                            acebotCore.addToQueue(channel, hostingTarget + " is playing " + streamInfo.get("game") + " : " + streamInfo.get("status") + ".", Integer.parseInt(source));
                         } else {
                             acebotCore.addToQueue(channel, hostingTarget + " is currently offline.", Integer.parseInt(source));
                         }

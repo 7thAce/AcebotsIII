@@ -18,7 +18,6 @@ public class Deathgame {
     private HashMap<String, Integer> accessExceptionMap = new HashMap<String, Integer>();
     private boolean isTakingBets;
     private HashMap<String, Integer> userDeathMap = new HashMap<String, Integer>();
-    private int testCount;
 
     public Deathgame() { }
     public Deathgame(BotCore core) {
@@ -28,7 +27,6 @@ public class Deathgame {
         String[] cmdInfo = acebotCore.getCommandInfo("deathgame");
         userAccess = Integer.parseInt(cmdInfo[1]);
         channelAccess = Integer.parseInt(cmdInfo[2]);
-        testCount = 0;
 
         //accessExceptionMap = fillAccessExceptionMap(info);
 
@@ -86,7 +84,7 @@ public class Deathgame {
                             deathList.remove(minIndex);
                             absoluteDeathList.remove(minIndex);
                         }
-                        returnMessage.append("Players: " + testCount + " or " + userDeathMap.size());
+                        returnMessage.append("Players: " + userDeathMap.size());
                         userDeathMap.clear();
                         acebotCore.addToQueue(channel, returnMessage.toString(), Integer.parseInt(source));
                     }
@@ -104,8 +102,6 @@ public class Deathgame {
             if (isTakingBets)
                 if (isInteger(message))
                 {
-                    if (!userDeathMap.containsKey(sender))
-                        testCount++;
                     userDeathMap.put(sender, Integer.parseInt(message));
                 }
 

@@ -15,11 +15,12 @@ import java.util.List;
 
 import graphics.acebotsthree;
 
+import javax.swing.*;
+
 import static u.u.appendTextPane;
 import static u.u.addHash;
 import static u.u.isBlank;
 
-@SuppressWarnings("rawtypes")
 public class BotCore extends PircBot {
 
     public static HashMap<String, Object> objectMap = new HashMap<String, Object>();
@@ -33,11 +34,11 @@ public class BotCore extends PircBot {
     public final static int OUTPUT_CHANNEL = 1;
     private acebotsthree acebotsGUI;
 
-
     public BotCore() { }
 
     public BotCore(String username, String password, String server, String initChannel)
     {
+        //JOptionPane.showMessageDialog(null, "I raq.");
         alMap.put("onLoad", new ArrayList<ActionListener>());
         alMap.put("onMessage", new ArrayList<ActionListener>());
         alMap.put("onCommand", new ArrayList<ActionListener>());
@@ -57,6 +58,7 @@ public class BotCore extends PircBot {
         alMap.put("onMe", new ArrayList<ActionListener>());
         alMap.put("onPing", new ArrayList<ActionListener>());
         alMap.put("onConnect", new ArrayList<ActionListener>());
+        alMap.put("onDisconnect", new ArrayList<ActionListener>());
         alMap.put("onSubscribe", new ArrayList<ActionListener>());
 
         messageQueue = new Queue(this);
@@ -66,7 +68,7 @@ public class BotCore extends PircBot {
         loadUsers();
         bootPluginSystem();
 
-        int port = 443;
+        int port = 80;
 
         acebotsGUI = new acebotsthree();
         //acebotsGUI = new Maingui(server, port, username)
@@ -92,6 +94,7 @@ public class BotCore extends PircBot {
         sendRawLine("TWITCHCLIENT 3");
         fire("onLoad", "");
         printTitleLine("Acebots III Loaded!  Updates will be frequent so check back often.", new Color(255, 128, 0));
+        acebotsGUI.setTitle("(0) Acebots III :|: Connected to " + server + ":" + port);
         //sendMessage(initChannel, "I am connected as Acebots III!");
     }
 
@@ -162,6 +165,9 @@ public class BotCore extends PircBot {
             fire("onCommand", channel + "``" + sender + "``" + "1" + "``" + TRIGGER + message.split(" ", 2)[1]);
         if (message.toLowerCase().startsWith("acebots iii, "))
             fire("onCommand", channel + "``" + sender + "``" + "1" + "``" + TRIGGER + message.split(" ", 3)[2]);
+
+        if (message.contains("just subscribed") && sender.equalsIgnoreCase("twitchnotify"))
+            fire("onSubscribe", channel + "``" + message.split(" ")[0] +  "``");
         //sendMessage(channel, "We have received a message");
     }
 
@@ -473,13 +479,23 @@ public class BotCore extends PircBot {
 
     public boolean botLeaveChannel(String name)
     {
-
         if (channelMap.containsKey(name.toLowerCase()))
         {
+            try {
             partChannel(name);
             channelMap.remove(name);
+            acebotsGUI.allChatLeftPane.removeTabAt(acebotsGUI.allChatLeftPane.indexOfTab(addHash(name.toLowerCase())));
+            acebotsGUI.allChatRightPane.removeTabAt(acebotsGUI.allChatRightPane.indexOfTab(addHash(name.toLowerCase())));
+            acebotsGUI.inputTab.removeTabAt(acebotsGUI.inputTab.indexOfTab(addHash(name)));
+            acebotsGUI.channelListBox.removeItem(name);
             fire("onBotLeave", name);
             return true;
+            }
+            catch (Exception e1)
+            {
+                e1.printStackTrace();
+                return false;
+            }
         }
         else
             return false;
@@ -502,21 +518,38 @@ public class BotCore extends PircBot {
 
     public void printlnChannel(String channel, String message, Color messageColor)
     {
+        try{
         appendTextPane(messageColor, message + "\n", getChannel(channel).getLeftChatBox());
         appendTextPane(messageColor, message + "\n", getChannel(channel).getRightChatBox());
+    } catch (Exception e) {
+        e.printStackTrace();
+        System.out.println("Error: " + channel);
+        System.out.println("Message: " + message);
+    }
     }
 
     public void printlnAll(String message, Color messageColor)
     {
+        try{
         appendTextPane(messageColor, message + "\n", acebotsGUI.allChatLeftBox);
         appendTextPane(messageColor, message + "\n", acebotsGUI.allChatRightBox);
+    } catch (Exception e) {
+        e.printStackTrace();
+        System.out.println("Message: " + message);
+    }
     }
 
 
     public void printChannel(String channel, String message, Color messageColor)
     {
-        appendTextPane(messageColor, message, getChannel(channel).getLeftChatBox());
-        appendTextPane(messageColor, message, getChannel(channel).getRightChatBox());
+        try{
+            appendTextPane(messageColor, message, getChannel(channel).getLeftChatBox());
+            appendTextPane(messageColor, message, getChannel(channel).getRightChatBox());
+        } catch (Exception e) {
+             e.printStackTrace();
+            System.out.println("Error: " + channel);
+            System.out.println("Message: " + message);
+        }
     }
 
     public void printAll(String message, Color messageColor)

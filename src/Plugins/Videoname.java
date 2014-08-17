@@ -65,7 +65,7 @@ public class Videoname {
                 if (word.contains("http"))
                     word = word.split("://")[1];
                 try {
-                    url = new URL("http://" + word);
+                    url = new URL("https://" + word);
                     BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
                     String str;
                     while ((str = in.readLine()) != null) {
@@ -78,12 +78,19 @@ public class Videoname {
                     e.printStackTrace();
                 }
             }
-        }
-        //allWords.toString().split("</script><title>")[1].split(" - YouTube")[0]
+        }        //allWords.toString().split("</script><title>")[1].split(" - YouTube")[0]
+        try{
         String title = "\"" + allWords.toString().split("<title>")[1].split(" - YouTube")[0] + "\"";
-        String uploader =  allWords.toString().split("<link itemprop=\"url\" href=\"http://www.youtube.com/user/")[1].split("\">")[0];
-        //BotCore.screenPrint("Linked YouTube video: " + title + " by " + uploader);
-        return "Linked YouTube video: " + title + " by " + uploader;
+            String uploader =  allWords.toString().replace("https://", "http://").split("<link itemprop=\"url\" href=\"http://www.youtube.com/user/")[1].split("\">")[0];
+            //BotCore.screenPrint("Linked YouTube video: " + title + " by " + uploader);
+            return "Linked YouTube video: " + title + " by " + uploader;
+        } catch (Exception e)
+        {
+            System.out.println("AW: " + allWords.toString());
+            System.out.println("Msg: " + message);
+            e.printStackTrace();
+        }
+        return "";
     }
 
     public String getTwitchInfo(String message)
@@ -116,6 +123,6 @@ public class Videoname {
         String temp = allWords.toString().split("<title>")[1].split("</title>")[0];
         String title = "\"" + temp.split(" - ")[1] + "\"";
         String uploader =  temp.split(" - ")[0];
-        return "Linked Twitch VOD: " + title + " by " + uploader;
+        return "Linked Twitch VOD - " + title + " by " + uploader;
     }
 }

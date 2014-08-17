@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import Bot.BotCore;
+
+import javax.swing.*;
+
 import static u.u.*;
 
 public class Copypasta {
@@ -17,6 +20,7 @@ public class Copypasta {
 	private HashMap<String, Boolean> channelEnabledMap = new HashMap<String, Boolean>();
 	private ArrayList<String> pastaMenu = new ArrayList<String>();
     private int characterLevel = 200;
+    HashMap<String, Timer> channelTimerMap = new HashMap<String, Timer>();
 	
 	public Copypasta() {
 	}
@@ -27,6 +31,7 @@ public class Copypasta {
 		acebotCore.subscribe("onCommand", new CommandActionListener());
 		acebotCore.subscribe("onMessage", new MessageActionListener());
         acebotCore.subscribe("onBotJoin", new BotJoinActionListener());
+        acebotCore.subscribe("onSubscribe", new SubscribeActionListener());
 		//acebotCore.subscribe("onMe", new EmoteActionListener());
 		String[] cmdInfo = acebotCore.getCommandInfo("allowpasta");
 		userAccess = Integer.parseInt(cmdInfo[1]);
@@ -108,6 +113,12 @@ public class Copypasta {
         {
             String[] args = getArgs(e);
             channelEnabledMap.put(args[0], false);
+        }
+    }
+
+    private class SubscribeActionListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+
         }
     }
 }

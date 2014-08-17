@@ -4,6 +4,7 @@ import static u.u.addHash;
 import static u.u.getArgs;
 import static u.u.isCommand;
 
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
@@ -67,17 +68,25 @@ public class Joinleave {
                         return;
 
                     String[] channelArgs = message.split(" ");
-                    for (int i = 1; i < channelArgs.length; i++)
-                        if(!acebotCore.botLeaveChannel(addHash(channelArgs[i])))
-                            allSuccessful = false;
 
-                    if (message.toLowerCase().endsWith("leave"))
-                        return;
+                    if (channelArgs.length == 1)
+                    {
+                        acebotCore.botLeaveChannel(addHash(channel));
+                        acebotCore.printlnAll("Left channel " + channel + ".", new Color(230, 230, 230));
+                    }
+                    else
+                    {
+                        for (int i = 1; i < channelArgs.length; i++)
+                            if(!acebotCore.botLeaveChannel(addHash(channelArgs[i])))
+                                allSuccessful = false;
+                    //if (message.toLowerCase().endsWith("leave"))
+                    //    return;
 
                     if (allSuccessful)
                         acebotCore.addToQueue(channel, "Left channel(s) " + message.substring(7) + ".", Integer.parseInt(source));
                     else
                         acebotCore.addToQueue(channel, "Not in some channel(s): " + message.substring(7) + ".", Integer.parseInt(source));
+                    }
                 }
             }
         }

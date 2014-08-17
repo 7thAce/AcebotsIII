@@ -37,6 +37,8 @@ public class MessageDisplay {
                 acebotCore.printAll(args[1] + args[0].substring(0,4) + " ", new Color(180,0,0));
                 acebotCore.printlnAll(args[2], new Color(230, 230, 230));
             }
+            if (args[1].equalsIgnoreCase("twitchnotify"))
+                System.out.println(args[2]);
         }
     }
 
@@ -46,10 +48,10 @@ public class MessageDisplay {
             String[] args = getArgs(e);
 
             acebotCore.printChannel(args[0],  "[" + BotCore.sdf.format(new Date())+ "] ", graphics.acebotsthree.TIMECOLOR);
-            acebotCore.printlnChannel(args[0], args[1] + ": " + args[2], new Color(180,0,0));
+            acebotCore.printlnChannel(args[0], args[1] + " " + args[2], new Color(180,0,0));
 
             acebotCore.printAll("[" + BotCore.sdf.format(new Date()) + "] ", graphics.acebotsthree.TIMECOLOR);
-            acebotCore.printlnAll(args[1] + args[0].substring(0,4) + ": " + args[2], new Color(180,0,0));
+            acebotCore.printlnAll(args[1] + args[0].substring(0,4) + " " + args[2], new Color(180,0,0));
         }
     }
 }

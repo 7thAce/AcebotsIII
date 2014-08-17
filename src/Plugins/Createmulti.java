@@ -53,7 +53,7 @@ public class Createmulti {
                         BufferedReader reader;
                         HashMap<String, String> streamInfo = new HashMap<String, String>();
                         try {
-                            URL url = new URL("http://api.justin.tv/api/stream/list.json?jsonp=&channel=" + channel.substring(1));
+                            URL url = new URL("https://api.twitch.tv/kraken/channels/" + channel.substring(1));
                             reader = new BufferedReader(new InputStreamReader(url.openStream()));
                             String blah = reader.readLine();
                             if(!(blah.equals("[]"))){
@@ -78,8 +78,8 @@ public class Createmulti {
                                         streamersStartAt = 4;
                                     else if (multiLink.contains("multitwitch"))
                                         streamersStartAt = 3;
-                                    else if (multiLink.contains("multitwitch"))
-                                        streamersStartAt = 1;
+                                    else if (multiLink.contains("speedrun.tv"))
+                                        streamersStartAt = 3;
                                     else
                                         streamersStartAt = 3;
                                     for (int i = streamersStartAt; i < multiNames.length; i++)

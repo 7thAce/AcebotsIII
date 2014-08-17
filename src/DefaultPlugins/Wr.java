@@ -70,7 +70,7 @@ public class Wr {
                     {
                         HashMap<String, String> streamInfo = new HashMap<String, String>();
                         try {
-                            URL url = new URL("http://api.justin.tv/api/stream/list.json?jsonp=&channel=" + channel.substring(1));
+                            URL url = new URL("https://api.twitch.tv/kraken/channels/" + channel.substring(1));
                             reader = new BufferedReader(new InputStreamReader(url.openStream()));
                             String blah = reader.readLine();
                             if(!(blah.equals("[]"))){
@@ -80,7 +80,7 @@ public class Wr {
                                     String[] keyValue = data[i].split("\":");
                                     streamInfo.put(keyValue[0].toLowerCase(), stripQuotes(keyValue[1]));
                                 }
-                                streamGame = streamInfo.get("meta_game");
+                                streamGame = streamInfo.get("game");
                                 streamTitle = streamInfo.get("status");
                                 if (streamTitle.contains("[nosrl]"))
                                     return;
@@ -158,7 +158,7 @@ public class Wr {
                             {
                                 HashMap<String, String> streamInfo = new HashMap<String, String>();
                                 try {
-                                    URL url = new URL("http://api.justin.tv/api/stream/list.json?jsonp=&channel=" + channel.substring(1));
+                                    URL url = new URL("https://api.twitch.tv/kraken/channels/" + channel.substring(1));
                                     reader = new BufferedReader(new InputStreamReader(url.openStream()));
                                     String blah = reader.readLine();
                                     if(!(blah.equals("[]"))){
@@ -168,7 +168,7 @@ public class Wr {
                                             String[] keyValue = data[k].split("\":");
                                             streamInfo.put(keyValue[0].toLowerCase(), stripQuotes(keyValue[1]));
                                         }
-                                        gameName.append(" " + streamInfo.get("meta_game"));
+                                        gameName.append(" " + streamInfo.get("game"));
                                     } else {
                                         gameName.append(" |%^#");
                                     }
@@ -192,11 +192,21 @@ public class Wr {
                                             acebotCore.addToQueue(channel, "World Record for " + wr.getGame() + " (" + cat + ") is " + wr.getTime() + " by " + wr.getWRholder() + ".", Integer.parseInt(source));
                                             return;
                                         }
-                                        /* if ((wr.getGame().toLowerCase().startsWith(gn.toLowerCase()) || wr.getGame().toLowerCase().endsWith(gn.toLowerCase()))  && wrCat.replace("%",  "").equalsIgnoreCase(cat.replace("%", "")))
+                                    }
+                                }
+                            }
+
+                            for (WorldRecord wr:wrSet) //Get each WR from the DBSet
+                            {
+                                for (String wrCatList:wr.getCategories())
+                                {
+                                    for (String wrCat:wrCatList.split(","))
+                                    {
+                                        if ((wr.getGame().toLowerCase().startsWith(gn.toLowerCase()) || wr.getGame().toLowerCase().endsWith(gn.toLowerCase()))  && wrCat.replace("%",  "").equalsIgnoreCase(cat.replace("%", "")))
                                         {
                                             acebotCore.addToQueue(channel, "World Record for " + wr.getGame() + " (" + cat + ") is " + wr.getTime() + " by " + wr.getWRholder() + ".", Integer.parseInt(source));
                                             return;
-                                        } */
+                                        }
                                     }
                                 }
                             }
@@ -213,6 +223,7 @@ public class Wr {
                         access = 1;
                     }
 
+                    System.out.println("Acc for " + sender + ": " + access);
 
                     if (access > 1)
                     {
@@ -511,17 +522,29 @@ public class Wr {
             String message = args[2];
             if (((message.toLowerCase().contains("what ") && message.toLowerCase().contains(" is ")) || (message.toLowerCase().contains("what's") || message.toLowerCase().contains("whats"))) && (message.toLowerCase().contains("wr") || message.toLowerCase().contains("record")))
             {
-            	if (message.contains("for "))
-            		acebotCore.fire("onCommand", channel + "``" + sender + "``1``" + "!wr " + message.split("for ")[1].replace("?", ""));
-            	else
-            		acebotCore.fire("onCommand", channel + "``" + sender + "``1``" + "!wr");
+                for (int i = 0; i < message.split(" ").length; i++)
+                {
+                    if (message.split(" ")[i].replace("?", "").equalsIgnoreCase("wr") || message.split(" ")[i].equalsIgnoreCase("record"))
+                    {
+                        if (message.contains("for "))
+                            acebotCore.fire("onCommand", channel + "``" + sender + "``1``" + "!wr " + message.split("for ")[1].replace("?", ""));
+                        else
+                            acebotCore.fire("onCommand", channel + "``" + sender + "``1``" + "!wr");
+                    }
+                }
             }
             if (message.toLowerCase().contains("who ") && (message.toLowerCase().contains("has") || message.toLowerCase().contains("holds")) && (message.toLowerCase().contains("wr") || message.toLowerCase().contains("record")))
             {
-            	if (message.contains("for "))
-            		acebotCore.fire("onCommand", channel + "``" + sender + "``1``" + "!wr " + message.split("for ")[1].replace("?", ""));
-            	else
-            		acebotCore.fire("onCommand", channel + "``" + sender + "``1``" + "!wr");
+                for (int i = 0; i < message.split(" ").length; i++)
+                {
+                    if (message.split(" ")[i].replace("?", "").equalsIgnoreCase("wr") || message.split(" ")[i].equalsIgnoreCase("record"))
+                    {
+                        if (message.contains("for "))
+                            acebotCore.fire("onCommand", channel + "``" + sender + "``1``" + "!wr " + message.split("for ")[1].replace("?", ""));
+                        else
+                            acebotCore.fire("onCommand", channel + "``" + sender + "``1``" + "!wr");
+                    }
+                }
             }
         }
     }

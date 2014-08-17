@@ -6,6 +6,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,12 +33,18 @@ public class Channel {
     private JTextPane rightChatBox;
     private acebotsthree acebotsGUI;
     private JTextField inputBox;
+
     private ArrayList<String> userList = new ArrayList<String>();
+    private String streamTitle;
+    private String streamGame;
+    private int viewerCount;
 
     private String lastMessage = "notAL3g1tmessage";
     public static int duplicateDelay = 20000;
     public Timer messageDelay;
-    //Timer
+
+    public static int lookupDelay = 5 * 60 * 1000;
+    public Timer channelLookup;
 
     public Channel() {}
 
@@ -50,6 +61,9 @@ public class Channel {
             messageTimestamps[i] = 0;
         messageDelay = new Timer(duplicateDelay, resetMessageTimer);
         messageDelay.stop();
+
+        channelLookup = new Timer(lookupDelay, channelLookupTimer);
+        channelLookup.start();
 
         leftChatBox = new JTextPane();
         rightChatBox = new JTextPane();
@@ -71,6 +85,7 @@ public class Channel {
         acebotsGUI.allChatLeftPane.addTab(name, leftChatScrollBar);
         acebotsGUI.allChatRightPane.addTab(name, rightChatScrollBar);
         acebotsGUI.channelListBox.addItem(channelName);
+
         inputBox = new JTextField();
         inputBox.setPreferredSize(new Dimension(1200, 6));
         inputBox.setMaximumSize(new Dimension(1200, 6));
@@ -183,6 +198,39 @@ public class Channel {
         public void actionPerformed(ActionEvent e) {
             messageDelay.stop();
             lastMessage = "notaxrealxmessagexasdf";
+        }
+    };
+
+    ActionListener channelLookupTimer = new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            /*
+            Get Viewer count from API
+            Get Title
+            Update title??
+            Update viewer list
+             */
+            HashMap<String, String> streamInfo = new HashMap<String, String>();
+            try {
+                URL url = new URL("https://api.twitch.tv/kraken/channels/" + channelName);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+                String blah = reader.readLine();
+                if(!(blah.equals("[]"))){
+                    String[] data = blah.split(",\"");
+                    for (int i = 0; i < data.length; i++)
+                    {
+                        String[] keyValue = data[i].split("\":");
+                        streamInfo.put(keyValue[0].toLowerCase(), stripQuotes(keyValue[1]));
+                    }
+                    return;
+                }
+            } catch (MalformedURLException e1) {
+                e1.printStackTrace();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+
+            streamTitle = streamInfo.get("status");
+            streamGame = streamInfo.get("game");
         }
     };
 

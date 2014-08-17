@@ -7,6 +7,7 @@ import static u.u.addHash;
 public class AcebotsIII {
     public static void main(String[] args)
     {
+        //JOptionPane.showMessageDialog(null, "I ran.");
         FileReader fr = null;
         String[] info = new String[4];
         try {
@@ -71,7 +72,7 @@ public class AcebotsIII {
             }
         }
 
+        //JOptionPane.showMessageDialog(null, "I wat");
         new BotCore(info[0], info[1], info[2], info[3]);
-       // "Acebots", "irc.twitch.tv", 6667
     }
 }
