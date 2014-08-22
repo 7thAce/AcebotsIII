@@ -75,7 +75,7 @@ public class BotCore extends PircBot {
 
         try {
             connect(server, port, password);
-            fire("onConnect", server + "``" + port + "``" + username);
+            fire("onConnect", new String[]{server, port + "", username});
 
             //acebotsGUI.changeTitle("Acebots II :|: Connected to " + server);
 
@@ -92,7 +92,7 @@ public class BotCore extends PircBot {
             botJoinChannel(addHash(chan));
 
         sendRawLine("TWITCHCLIENT 3");
-        fire("onLoad", "");
+        fire("onLoad", new String[]{});
         printTitleLine("Acebots III Loaded!  Updates will be frequent so check back often.", new Color(255, 128, 0));
         acebotsGUI.setTitle("(0) Acebots III :|: Connected to " + server + ":" + port);
         //sendMessage(initChannel, "I am connected as Acebots III!");
@@ -133,12 +133,28 @@ public class BotCore extends PircBot {
         }
     }
 
-    public void fire(String event, String arguments)
+    /* public void fire(String event, String arguments)
     {
         //System.out.println("Firing " + event);
         try {
             for (ActionListener al:alMap.get(event))
                 al.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, arguments));
+        } catch (Exception e) {
+            System.out.println("Error in event: " + event);
+            e.printStackTrace();
+        }
+    }  */
+
+    public void fire(String event, String[] argumentsArray)
+    {
+        //System.out.println("Firing " + event);
+        try {
+            StringBuilder arguments = new StringBuilder();
+            for (String arg:argumentsArray)
+                arguments.append(arg + "``");
+            System.out.println(arguments.toString() + event);
+            for (ActionListener al:alMap.get(event))
+                al.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, arguments.toString().substring(0, Math.max(arguments.length() - 2, 0))));
         } catch (Exception e) {
             System.out.println("Error in event: " + event);
             e.printStackTrace();
@@ -158,32 +174,32 @@ public class BotCore extends PircBot {
     {
         if (sender.equalsIgnoreCase(channel.substring(1)) && message.toLowerCase().equalsIgnoreCase("!kill"))
             System.exit(-5);
-        fire("onMessage", channel + "``" + sender + "``" + message);
+        fire("onMessage", new String[]{channel, sender, message});
         if (message.substring(0, TRIGGER.length()).equals(TRIGGER))
-            fire("onCommand", channel + "``" + sender + "``" + "1" + "``" + message);
+            fire("onCommand", new String[]{channel, sender, "1", message});
         if (message.toLowerCase().startsWith(getNick().toLowerCase() + ", "))
-            fire("onCommand", channel + "``" + sender + "``" + "1" + "``" + TRIGGER + message.split(" ", 2)[1]);
+            fire("onCommand", new String[]{channel, sender, "1", TRIGGER + message.split(" ", 2)[1]});
         if (message.toLowerCase().startsWith("acebots iii, "))
-            fire("onCommand", channel + "``" + sender + "``" + "1" + "``" + TRIGGER + message.split(" ", 3)[2]);
+            fire("onCommand", new String[]{channel, sender, "1", TRIGGER + message.split(" ", 3)[2]});
 
         if (message.contains("just subscribed") && sender.equalsIgnoreCase("twitchnotify"))
-            fire("onSubscribe", channel + "``" + message.split(" ")[0] +  "``");
+            fire("onSubscribe", new String[]{channel, message.split(" ")[0] +  "``"});
         //sendMessage(channel, "We have received a message");
     }
 
     protected void onJoin(String channel, String sender, String login, String hostname)
     {
-        fire("onUserJoin", channel + "``" + sender);
+        fire("onUserJoin", new String[]{channel, sender});
     }
 
     protected void onPart(String channel, String sender, String login, String hostname)
     {
-        fire("onUserLeave", channel + "``" + sender);
+        fire("onUserLeave", new String[]{channel, sender});
     }
 
     protected void onMode(String channel, String sourceNick, String sourceLogin, String sourceHostname, String mode)
     {
-        fire("onChannelMode", channel + "``" + sourceNick + "``" + mode);
+        fire("onChannelMode", new String[]{channel, sourceNick, mode});
     }
 
     protected void onUserMode(String targetNick, String sourceNick, String sourceLogin, String sourceHostname, String mode)
@@ -192,22 +208,22 @@ public class BotCore extends PircBot {
         {
             modList.add(mode.split(" ")[2].toLowerCase() + mode.split(" ")[0]);
         }
-        fire("onUserMode", targetNick + "``" + sourceNick + "``" + mode);
+        fire("onUserMode", new String[]{targetNick, sourceNick, mode});
     }
 
     protected void onPing(String sourceNick, String sourceLogin, String sourceHostname, String target, String pingValue)
     {
-        fire("onPing", sourceNick + "``" + target + "``" + pingValue);
+        fire("onPing", new String[]{sourceNick, target, pingValue});
     }
 
     protected void onAction(String sender, String login, String hostname, String target, String action)
     {
-        fire("onMe", target + "``" + sender + "``" + action);
+        fire("onMe", new String[]{target, sender, action});
     }
 
     protected void onPrivateMessage(String sender, String login, String hostname, String message)
     {
-        fire("onPrivateMessage", sender + "``" + message);
+        fire("onPrivateMessage", new String[]{sender, message});
     }
 
     /*alMap.put("onFiltered", new ArrayList<ActionListener>());
@@ -274,7 +290,7 @@ public class BotCore extends PircBot {
                 e.printStackTrace();
             }
         }
-        fire("onReload", "");
+        fire("onReload", new String[]{});
     }
 
     private static Class[] loadPlugins(String packageName)
@@ -472,7 +488,7 @@ public class BotCore extends PircBot {
         else
         {
             channelMap.put(name, new Channel(name, this));
-            fire("onBotJoin", name);
+            fire("onBotJoin", new String[]{name});
             return true;
         }
     }
@@ -488,7 +504,7 @@ public class BotCore extends PircBot {
             acebotsGUI.allChatRightPane.removeTabAt(acebotsGUI.allChatRightPane.indexOfTab(addHash(name.toLowerCase())));
             acebotsGUI.inputTab.removeTabAt(acebotsGUI.inputTab.indexOfTab(addHash(name)));
             acebotsGUI.channelListBox.removeItem(name);
-            fire("onBotLeave", name);
+            fire("onBotLeave", new String[]{name});
             return true;
             }
             catch (Exception e1)

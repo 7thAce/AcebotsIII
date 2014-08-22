@@ -56,7 +56,7 @@ public class Channel {
         acebotCore.joinChannel(name);
         channelName = name.substring(1);
         core.subscribe("onMessage", new MessageActionListener());
-        core.subscribe("onUserJoin", new JoinActionListener());
+        //core.subscribe("onUserJoin", new JoinActionListener());
         for (int i = 0; i < messageTimestamps.length; i++)
             messageTimestamps[i] = 0;
         messageDelay = new Timer(duplicateDelay, resetMessageTimer);
@@ -107,11 +107,11 @@ public class Channel {
                     {
                         if (msg.startsWith("//"))
                         {
-                            acebotCore.fire("onCommand", addHash(channelName) + "``" + acebotCore.getNick() + "``1``" + msg);
+                            acebotCore.fire("onCommand", new String[]{addHash(channelName), acebotCore.getNick(), "1", msg});
                         }
                         else
                         {
-                            acebotCore.fire("onCommand", addHash(channelName) + "``" + acebotCore.getNick() + "``0``" + msg);
+                            acebotCore.fire("onCommand", new String[]{addHash(channelName), acebotCore.getNick(), "0", msg});
                         }
                     }
                     else
@@ -146,7 +146,7 @@ public class Channel {
         }
     }
 
-    private class JoinActionListener implements ActionListener {
+    /*private class JoinActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e)
         {
             String[] args = getArgs(e);
@@ -157,7 +157,7 @@ public class Channel {
     private void onJoin()
     {
 
-    }
+    } */
 
     public boolean leave()
     {

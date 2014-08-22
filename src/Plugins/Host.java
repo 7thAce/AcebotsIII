@@ -133,6 +133,7 @@ public class Host {
                     public void actionPerformed(ActionEvent e1) {
                         acebotCore.addToQueue(chan, "/unhost", 1);
                         acebotCore.addToQueue(chan, "Hosting ended.", 1);
+                        acebotCore.fire("onUnhost", new String[]{chan});
                     }
                 };
                 Timer tempTimer = new Timer(0, endHostingEvent);
