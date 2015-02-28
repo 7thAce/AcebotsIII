@@ -37,15 +37,18 @@ public class Wr {
         wrUserAccess = Integer.parseInt(cmdInfo[1]);
         wrChannelAccess = Integer.parseInt(cmdInfo[2]);
 
-        for (int i = 4; i < cmdInfo.length; i++)
+        for (int i = 3; i < cmdInfo.length; i++)
+        {
+            System.out.println("Added exception for " + cmdInfo[i].substring(1).toLowerCase() + " at access " + Integer.parseInt(cmdInfo[i].substring(0,1)));
             wrAccessExceptionMap.put(cmdInfo[i].substring(1).toLowerCase(), Integer.parseInt(cmdInfo[i].substring(0,1)));
+        }
         
         cmdInfo = core.getCommandInfo("editwr");
 
         wrEditorUserAccess = Integer.parseInt(cmdInfo[1]);
         wrEditorChannelAccess = Integer.parseInt(cmdInfo[2]);
 
-        for (int i = 4; i < cmdInfo.length; i++)
+        for (int i = 3; i < cmdInfo.length; i++)
             wrEditorAccessExceptionMap.put(cmdInfo[i].substring(1).toLowerCase(), Integer.parseInt(cmdInfo[i].substring(0,1)));
     }
     
@@ -70,7 +73,8 @@ public class Wr {
                     {
                         HashMap<String, String> streamInfo = new HashMap<String, String>();
                         try {
-                            URL url = new URL("https://api.twitch.tv/kraken/channels/" + channel.substring(1));
+                            URL url;
+                            url = new URL("https://api.twitch.tv/kraken/channels/" + channel.substring(1));
                             reader = new BufferedReader(new InputStreamReader(url.openStream()));
                             String blah = reader.readLine();
                             if(!(blah.equals("[]"))){
@@ -223,8 +227,6 @@ public class Wr {
                         access = 1;
                     }
 
-                    System.out.println("Acc for " + sender + ": " + access);
-
                     if (access > 1)
                     {
                         acebotCore.addToQueue(channel, "Unable to determine World Record for " + message.substring(4) + " (it may not be recorded yet).", Integer.parseInt(source));
@@ -236,158 +238,20 @@ public class Wr {
                     }
                 }
             }
-
-                    /*HashMap<String, String> streamInfo = new HashMap<String, String>();
-                    try {
-                        URL url = new URL("http://api.justin.tv/api/stream/list.json?jsonp=&channel=" + channel.substring(1));
-                        reader = new BufferedReader(new InputStreamReader(url.openStream()));
-                        String blah = reader.readLine();
-                        if(!(blah.equals("[]"))){
-                            String[] data = blah.split(",\"");
-                            for (int i = 0; i < data.length; i++)
-                            {
-                                String[] keyValue = data[i].split("\":");
-                                streamInfo.put(keyValue[0].toLowerCase(), stripQuotes(keyValue[1]));
-                            }
-                            streamGame = streamInfo.get("meta_game");
-                            streamTitle = streamInfo.get("status");
-                            if (streamTitle.contains("[nosrl]"))
-                                return;
-                        } else {
-                            acebotCore.addToQueue(channel, "No game detected on this stream.  Please narrow your search with !wr <game> [category].", Integer.parseInt(source));
-                            return;
-                        }
-                    } catch (MalformedURLException e1) {
-                        e1.printStackTrace();
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    }
-
-                    for (WorldRecord wr:wrSet) //Get each WR from the DBSet
-                    {
-                        for (String wrCat:wr.getCategories()) //Get each Category from the WR
-                        {
-                            if (streamTitle.toLowerCase().contains(wrCat.replace("%", "").toLowerCase()))
-                            {
-                                if (wr.getGame().equalsIgnoreCase(streamGame))
-                                {
-                                    acebotCore.addToQueue(channel, "World Record for " + streamGame + " (" + wrCat + ") is " + wr.getTime() + " by " + wr.getWRholder() + ".", Integer.parseInt(source));
-                                    return;
-                                }
-                            }
-                        }
-                    }
-
-                    for (WorldRecord wr:wrSet) //Get each WR from the DBSet
-                    {
-                        for (String wrCat:wr.getCategories()) //Get each Category from the WR
-                        {
-                            if (wrCat.replace("%", "").toLowerCase().contains("any"))
-                            {
-                                if (wr.getGame().equalsIgnoreCase(streamGame))
-                                {
-                                    acebotCore.addToQueue(channel, "World Record for " + streamGame + " (" + wrCat + ") is " + wr.getTime() + " by " + wr.getWRholder() + ".", Integer.parseInt(source));
-                                    return;
-                                }
-                            }
-                        }
-                    }
-                    acebotCore.addToQueue(channel, "No world record found for " + streamGame + ".", Integer.parseInt(source));
-                    return;
-                }
-                else
-                {
-                   args = message.split(" ", 2)[1].split(" ");
-                /* The idea here is that we need to try each different combination of the arguments as a game name and category
-                 * Eg. [(StreamGame)]|[Dark Souls All Bosses], [Dark]|[Souls All Bosses], [Dark Souls]|[All Bosses], [Dark Souls All]|[Bosses], [Dark Souls All Bosses]|](Any%)]
-                 * When it finds that BOTH match (given implied game StreamGame and category Any% when none is given), it returns.
-                 * Else, no return.
-                */
-                   /* for (int i = 0; i <= args.length; i++) //the iteration through the arguments.  Check each possibility
-                    {
-                        StringBuilder gameName = new StringBuilder();
-                        StringBuilder category = new StringBuilder();
-                        for (int j = 0; j < args.length; j++) //builder loop, i is the splitter, j for junk (waste var)
-                        {
-                            if (j < i)
-                            {
-                                gameName.append(" " + args[j]);
-                            }
-                            else
-                            {
-                                category.append(" " + args[j]);
-                            }
-                        }
-
-                        if (category.length() == 0)
-                        {
-                            category.append(" Any%");
-                        }
-                        if (gameName.length() == 0 && i == 0)
-                        {
-                            HashMap<String, String> streamInfo = new HashMap<String, String>();
-                            try {
-                                URL url = new URL("http://api.justin.tv/api/stream/list.json?jsonp=&channel=" + channel.substring(1));
-                                reader = new BufferedReader(new InputStreamReader(url.openStream()));
-                                String blah = reader.readLine();
-                                if(!(blah.equals("[]"))){
-                                    String[] data = blah.split(",\"");
-                                    for (int k = 0; k < data.length; k++)
-                                    {
-                                        String[] keyValue = data[k].split("\":");
-                                        streamInfo.put(keyValue[0].toLowerCase(), stripQuotes(keyValue[1]));
-                                    }
-                                    gameName.append(" " + streamInfo.get("meta_game"));
-                                } else {
-                                    gameName.append(" |%^#");
-                                }
-                            } catch (MalformedURLException e1) {
-                                e1.printStackTrace();
-                            } catch (IOException e1) {
-                                e1.printStackTrace();
-                            }
-                        }
-                        String gn = trim(gameName.toString());
-                        String cat = trim(category.toString());
-
-                        for (WorldRecord wr:wrSet) //Get each WR from the DBSet
-                        {
-                            for (String wrCatList:wr.getCategories())
-                            {
-                                for (String wrCat:wrCatList.split(","))
-                                {
-                                    System.out.println(wr.getGame() + " : " + wrCat + " vs. " + gn + " : " + cat);
-                                    if (wr.getGame().equalsIgnoreCase(gn) && wrCat.replace("%",  "").equalsIgnoreCase(cat.replace("%", "")))
-                                    {
-                                        acebotCore.addToQueue(channel, "World Record for " + wr.getGame() + " (" + cat + ") is " + wr.getTime() + " by " + wr.getWRholder() + ".", Integer.parseInt(source));
-                                        return;
-                                    }
-                                    if ((wr.getGame().toLowerCase().startsWith(gn.toLowerCase()) || wr.getGame().toLowerCase().endsWith(gn.toLowerCase()))  && wrCat.replace("%",  "").equalsIgnoreCase(cat.replace("%", "")))
-                                    {
-                                        acebotCore.addToQueue(channel, "World Record for " + wr.getGame() + " (" + cat + ") is " + wr.getTime() + " by " + wr.getWRholder() + ".", Integer.parseInt(source));
-                                        return;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                int access = acebotCore.getUserAccessMap().get(sender.toLowerCase());
-                if (access == 0)
-                    access = 1;
-                if (access > 1)
-                    acebotCore.addToQueue(channel, "Unable to determine World Record for " + message.substring(4) + " (it may not be recorded yet).", Integer.parseInt(source));
-	        }                             */
-	        
                     
 	        if (isCommand("editwr", message))
 	        {
             	if (acebotCore.hasAccess(channel, sender, wrEditorChannelAccess, wrEditorUserAccess, wrEditorAccessExceptionMap))
             	{
+                    if (!message.contains(" "))
+                    {
+                        acebotCore.addToQueue(channel, "To edit a record, use !editwr [game] [time] [runner] [category].", Integer.parseInt(source));
+                        return;
+                    }
                     args = message.split(" ", 2)[1].split(" ");
                     if (args.length < 4)
                     {
-                        acebotCore.addToQueue(channel, "Invalid syntax, use !editwr <game> <time> <runner> <categories>", Integer.parseInt(source));
+                        acebotCore.addToQueue(channel, "Invalid syntax, use !editwr [game] [time] [runner] [category].", Integer.parseInt(source));
                         return;
                     }
                     String gameName = "asdf";
@@ -407,14 +271,14 @@ public class Wr {
                             }
                             catch (ArrayIndexOutOfBoundsException e)
                             {
-                                acebotCore.addToQueue(channel, "Invalid syntax, use !editwr <game> <time> <runner> <categories>", Integer.parseInt(source));
+                                acebotCore.addToQueue(channel, "Invalid syntax, use !editwr [game] [time] [runner] [category].", Integer.parseInt(source));
                                 return;
                             }
                         }
                     }
                     if (gameName.equals("asdf") || time.equals("asdf") || runner.equals("asdf") || categories.equals("asdf"))
                     {
-                        acebotCore.addToQueue(channel, "Invalid syntax, use !editwr <game> <time> <runner> <categories>", Integer.parseInt(source));
+                        acebotCore.addToQueue(channel, "Invalid syntax, use !editwr [game] [time] [runner] [category].", Integer.parseInt(source));
                         return;
                     }
                     for (WorldRecord wr:wrSet)

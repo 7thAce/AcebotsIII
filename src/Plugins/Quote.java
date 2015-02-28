@@ -1,13 +1,11 @@
 package Plugins;
 
 import Bot.BotCore;
+import data.WorldRecord;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -40,21 +38,21 @@ public class Quote {
 
     private class CommandActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            /*tring[] args = getArgs(e);
+            String[] args = getArgs(e);
             String channel = args[0];
             String sender = args[1];
             String source = args[2];
             String message = args[3];
             String qParam;
 
-            if (isCommand("quote", message))
+            if (isCommand("abquote", message))
             {
-                if (acebotCore.hasAccess(channel, sender, channelAccess, userAccess, accessExceptionMap));
+                if (acebotCore.hasAccess(channel, sender, channelAccess, userAccess, accessExceptionMap))
                 {
-                    if (message.length() <= 6)
+                    if (message.length() <= 8)
                         qParam = "";
                     else
-                        qParam = message.substring(7);
+                        qParam = message.substring(9); //This is called bad programming
 
                     ArrayList<String> matchingQuotes = new ArrayList<String>();
 
@@ -68,7 +66,18 @@ public class Quote {
                     String quoter = quote.substring(quote.lastIndexOf("-"));
                     acebotCore.addToQueue(channel, quote.substring(0, quote.lastIndexOf("-")) + quoter, Integer.parseInt(source));
                 }
-            }              */
+            }
+            if (isCommand("addabquote", message))
+            {
+                //quotesList.add(message.split(" ", 2)[1]);
+                //try {
+                //    PrintWriter writer = new PrintWriter("quotes.txt");
+                //    writer.println(message.split(" ", 2)[1]);
+                //    writer.close();
+                //} catch (FileNotFoundException e1) {
+                //    e1.printStackTrace();
+                //}
+            }
         }
     }
 

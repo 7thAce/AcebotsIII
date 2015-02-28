@@ -72,7 +72,7 @@ public class AcebotsIII {
             }
         }
 
-        //JOptionPane.showMessageDialog(null, "I wat");
-        new BotCore(info[0], info[1], info[2], info[3]);
+        //JOptionPane.showMessageDialog(null, "Main class");
+        new BotCore(info[0], info[1], info[2], 80, info[3]);
     }
 }

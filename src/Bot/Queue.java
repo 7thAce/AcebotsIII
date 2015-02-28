@@ -91,7 +91,7 @@ public class Queue implements ActionListener {
             if (!acebotCore.getChannel(channel).getLastMessage().equalsIgnoreCase(messagesQueue.get(0).split(" ", 2)[1]))
             {
                 acebotCore.sendMessage(channel, messagesQueue.get(0).split(" ", 2)[1]);
-
+                //GLOBAL'D -
                 acebotCore.printChannel(channel, "[" + BotCore.sdf.format(new Date()) + "] ", graphics.acebotsthree.TIMECOLOR);
                 acebotCore.printChannel(channel, acebotCore.getNick() + ": ", new Color(180,0,0));
                 acebotCore.printlnChannel(channel, messagesQueue.get(0).split(" ", 2)[1], new Color(230, 230, 230));

@@ -32,7 +32,7 @@ public class CustomCommandSystem {
         userAccess = Integer.parseInt(cmdInfo[1]); 
         channelAccess = Integer.parseInt(cmdInfo[2]);
 
-        for (int i = 4; i < cmdInfo.length; i++)
+        for (int i = 3; i < cmdInfo.length; i++)
             accessExceptionMap.put(cmdInfo[i].substring(1).toLowerCase(), Integer.parseInt(cmdInfo[i].substring(0,1)));
 	}
 
@@ -144,6 +144,19 @@ public class CustomCommandSystem {
 				{
 					commandMap.remove(args[1].toLowerCase() + channel);
 					acebotCore.addToQueue(channel, "Deleted command " + args[1], Integer.parseInt(source));
+                    PrintWriter writer;
+
+                    try {
+                        writer = new PrintWriter(BotCore.CUSTOMCMDSFILEPATH);
+                        for (CustomCommand cc:commandMap.values())
+                        {
+                            writer.println(cc.getCmd() + addHash(cc.getChannel()) + " " + cc.getUserAccess() + " " + cc.getChannelAccess() + " " + cc.getResponse());
+                            System.out.println(cc.getCmd() + cc.getChannel());
+                        }
+                        writer.close();
+                    } catch (FileNotFoundException e1) {
+                        e1.printStackTrace();
+                    }
 				}
 				else
 					acebotCore.addToQueue(channel, "Unable to delete Command " + args[1], Integer.parseInt(source));
@@ -155,7 +168,7 @@ public class CustomCommandSystem {
                 if (acebotCore.hasAccess(channel, sender, customCmd.getChannelAccess(), customCmd.getUserAccess(), null))
                 {
                     String[] fromArray = CustomCommand.fromArray;
-                    String[] toArray = {sender, channel, channel.replace("#", ""), BotCore.sdf.format(new Date()), message.replace("/", "").replace("!",  "").split(" ")[0], acebotCore.getNick(), "", ""};
+                    String[] toArray = {sender, sender, channel, channel.replace("#", ""), BotCore.sdf.format(new Date()), message.replace("/", "").replace("!",  "").split(" ")[0], acebotCore.getNick(), "", "", ""};
 
                     String resp = customCmd.getResponse();
 

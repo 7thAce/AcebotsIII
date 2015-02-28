@@ -45,7 +45,7 @@ public class Createmulti {
             String message = args[3];
             if (isCommand("createmulti", message))
             {
-                if (acebotCore.hasAccess(channel, sender, channelAccess, userAccess, accessExceptionMap));
+                if (acebotCore.hasAccess(channel, sender, channelAccess, userAccess, accessExceptionMap))
                 {
                     String multiLink = "";
                     if (message.equalsIgnoreCase("!createmulti"))
@@ -85,7 +85,7 @@ public class Createmulti {
                                     for (int i = streamersStartAt; i < multiNames.length; i++)
                                     {
                                         System.out.println(multiNames[i] + "---------/addcommand multi " + multiLink);
-                                        acebotCore.fire("onCommand", new String[]{"#" + multiNames[i], acebotCore.getNick(), "0", "/addcommand multi " + multiLink});
+                                        acebotCore.fire("onCommand", new String[]{"#" + multiNames[i].toLowerCase(), acebotCore.getNick(), "0", "/addcommand multi Support all the streamers at " + multiLink});
                                     }
                                     acebotCore.addToQueue(channel, "Created multi link: " + multiLink, Integer.parseInt(source));
                                 }
@@ -98,7 +98,7 @@ public class Createmulti {
                     }
                     else
                     {
-                        args = message.split(" ");
+                        args = message.toLowerCase().split(" ");
                         StringBuilder multi = new StringBuilder("http://kadgar.net/live/");
                         for (int i = 1; i < args.length; i++)
                             multi.append(args[i] + "/");
@@ -107,7 +107,8 @@ public class Createmulti {
                         for (int i = 1; i < args.length; i++)
                         {
                             System.out.println("--------/addcommand multi " + multiLink);
-                            acebotCore.fire("onCommand", new String[]{"#" + args[i], acebotCore.getNick(), "0", "/addcommand multi " + multiLink});
+                            if (acebotCore.getChannel("#" + args[i]) != null)
+                                acebotCore.fire("onCommand", new String[]{"#" + args[i], acebotCore.getNick(), "0", "/addcommand multi Support all the streamers at " + multiLink});
                         }
                         acebotCore.addToQueue(channel, "Created multi link: " + multiLink, Integer.parseInt(source));
                     }

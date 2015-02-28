@@ -10,7 +10,7 @@ public class CustomCommand {
 	private int channelAccess;
     private String channel;
 
-    public static String[] fromArray = {"%n", "%c", "%s", "%t", "%m", "%b", "/timeout", "/ban"};
+    public static String[] fromArray = {"%n", "%0", "%c", "%s", "%t", "%m", "%b", "/timeout", "/ban", "/ignore"};
 
 	public CustomCommand() { }
 	public CustomCommand(String cmdName, String cmdResponse, String cmdChannel)

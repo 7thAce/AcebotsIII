@@ -25,7 +25,7 @@ public class Say {
         channelAccess = Integer.parseInt(cmdInfo[2]);
 
         for (int i = 3; i < cmdInfo.length; i++)
-            accessExceptionMap.put(cmdInfo[i].substring(1).toLowerCase(), Integer.parseInt(cmdInfo[i].substring(0,1)));
+            accessExceptionMap.put(cmdInfo[i].toLowerCase(), Integer.parseInt(cmdInfo[i].substring(0,1)));
     }
 
     private class CommandActionListener implements ActionListener {

@@ -18,6 +18,9 @@ public class Deathgame {
     private HashMap<String, Integer> accessExceptionMap = new HashMap<String, Integer>();
     private boolean isTakingBets;
     private HashMap<String, Integer> userDeathMap = new HashMap<String, Integer>();
+    private int sumTest;
+    private int numberTest;
+    private boolean paused;
 
     public Deathgame() { }
     public Deathgame(BotCore core) {
@@ -27,6 +30,7 @@ public class Deathgame {
         String[] cmdInfo = acebotCore.getCommandInfo("deathgame");
         userAccess = Integer.parseInt(cmdInfo[1]);
         channelAccess = Integer.parseInt(cmdInfo[2]);
+        paused = false;
 
         //accessExceptionMap = fillAccessExceptionMap(info);
 
@@ -43,24 +47,44 @@ public class Deathgame {
             String message = args[3];
             if (isCommand("startdeath", message))
             {
-                if (acebotCore.hasAccess(channel, sender, channelAccess, userAccess, accessExceptionMap));
+                if (acebotCore.hasAccess(channel, sender, channelAccess, userAccess, accessExceptionMap))
                 {
-                    if (!isTakingBets)
+                    if (!isTakingBets && !paused)
                     {
                         isTakingBets = true;
                         acebotCore.addToQueue(channel, "Starting death contest, type a number in chat to place a bet on the death total!", Integer.parseInt(source));
                     }
+                    else
+                    {
+                        acebotCore.addToQueue(channel, "Death game already in progress!", Integer.parseInt(source));
+                    }
                 }
             }
-            if (isCommand("stopdeath", message))
+
+            if (isCommand("pausedeath", message))
             {
-                if (acebotCore.hasAccess(channel, sender, channelAccess, userAccess, accessExceptionMap));
+                if (acebotCore.hasAccess(channel, sender, channelAccess, userAccess, accessExceptionMap))
                 {
                     if (isTakingBets)
                     {
+                        isTakingBets = false;
+                        acebotCore.addToQueue(channel, "No longer accepting guesses for the death contest - Results will be announced shortly.", Integer.parseInt(source));
+                        paused = true;
+                    }
+                }
+            }
+
+            if (isCommand("stopdeath", message))
+            {
+                if (acebotCore.hasAccess(channel, sender, channelAccess, userAccess, accessExceptionMap))
+                {
+                    if (isTakingBets || paused)
+                    {
                         if (!isInteger(message.split(" ")[1]))
                             return;
+
                         isTakingBets = false;
+                        paused = false;
                         int actualDeaths = Integer.parseInt(message.split(" ")[1]);
                         ArrayList<String> userList = new ArrayList<String>(userDeathMap.keySet());
                         ArrayList<Integer> deathList = new ArrayList<Integer>();
@@ -100,10 +124,31 @@ public class Deathgame {
             String sender = args[1];
             String message = args[2];
             if (isTakingBets)
+            {
                 if (isInteger(message))
                 {
                     userDeathMap.put(sender, Integer.parseInt(message));
                 }
+                else
+                {
+                    if (message.contains("!stopdeath"))
+                        return;
+                    String[] goForNumbers = message.split(" ");
+                    for (int i = 0; i < goForNumbers.length; i++)
+                    {
+                        if (isInteger(goForNumbers[i]))
+                        {
+                            if (userDeathMap.containsKey(sender) && i != 0)
+                                return;
+                            userDeathMap.put(sender, Integer.parseInt(goForNumbers[i]));
+                            sumTest += Integer.parseInt(goForNumbers[i]);
+                            numberTest++;
+                            System.out.println("Average: " + Math.round((sumTest + 0.0) / numberTest));
+                            return;
+                        }
+                    }
+                }
+            }
 
         }
     }

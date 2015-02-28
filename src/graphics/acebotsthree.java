@@ -1,7 +1,13 @@
 package graphics;
 
+import org.jibble.pircbot.User;
+
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 public class acebotsthree extends JFrame {
@@ -26,7 +32,6 @@ public class acebotsthree extends JFrame {
     }
 
     private void channelListBoxActionPerformed(ActionEvent e) {
-        // TODO add your code here
     }
 
     private void inputFieldActionPerformedTEST(ActionEvent e) {
@@ -36,6 +41,8 @@ public class acebotsthree extends JFrame {
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         // Generated using JFormDesigner Evaluation license - Bob Joe
+        dListModel = new DefaultListModel<String>();
+        channelUserList = new JList<String>(dListModel);
         menuBar = new JMenuBar();
         botMenu = new JMenu();
         loadAccountItem = new JMenuItem();
@@ -50,7 +57,6 @@ public class acebotsthree extends JFrame {
         scrollPane3 = new JScrollPane();
         allChatRightBox = new JTextPane();
         scrollPane1 = new JScrollPane();
-        channelUserList = new JList();
         inputTab = new JTabbedPane();
         inputField = new JTextField();
         accountListBox = new JComboBox();
@@ -60,6 +66,7 @@ public class acebotsthree extends JFrame {
         setBackground(Color.green);
         setTitle("Acebots III :|: Disconnected");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setIconImage(Toolkit.getDefaultToolkit().getImage("icon.png"));
         setVisible(true);
         Container contentPane = getContentPane();
         contentPane.setLayout(new GridBagLayout());
@@ -101,7 +108,7 @@ public class acebotsthree extends JFrame {
         setJMenuBar(menuBar);
 
         //---- someExtraLabel ----
-        someExtraLabel.setText("text");
+        someExtraLabel.setText("Moderating for 0 viewers.  Loading...");
         someExtraLabel.setBackground(Color.black);
         someExtraLabel.setOpaque(true);
         someExtraLabel.setForeground(Color.white);
@@ -121,15 +128,16 @@ public class acebotsthree extends JFrame {
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 2, 0), 0, 0));
 
+
         //======== splitPaneMain ========
         {
-            splitPaneMain.setDividerLocation(435);
+            splitPaneMain.setDividerLocation(525);
             splitPaneMain.setDividerSize(2);
 
             //======== allChatLeftPane ========
             {
                 allChatLeftPane.setBackground(Color.black);
-                allChatLeftPane.setForeground(new Color(0, 230, 230));
+                allChatLeftPane.setForeground(new Color(128, 128, 128));
 
                 //======== scrollPane2 ========
                 {
@@ -137,17 +145,18 @@ public class acebotsthree extends JFrame {
                     //---- allChatLeftBox ----
                     allChatLeftBox.setBackground(new Color(25, 25, 25));
                     allChatLeftBox.setEditable(false);
-                    allChatLeftBox.setDoubleBuffered(true);
+                    allChatLeftBox.setDoubleBuffered(false);
                     scrollPane2.setViewportView(allChatLeftBox);
                 }
                 allChatLeftPane.addTab("All Chat", scrollPane2);
+                allChatLeftPane.setForegroundAt(0, new Color(0, 230, 230));
             }
             splitPaneMain.setLeftComponent(allChatLeftPane);
 
             //======== allChatRightPane ========
             {
                 allChatRightPane.setBackground(Color.black);
-                allChatRightPane.setForeground(new Color(0, 230, 230));
+                allChatRightPane.setForeground(new Color(128, 128, 128));
 
                 //======== scrollPane3 ========
                 {
@@ -159,6 +168,7 @@ public class acebotsthree extends JFrame {
                     scrollPane3.setViewportView(allChatRightBox);
                 }
                 allChatRightPane.addTab("All Chat", scrollPane3);
+                allChatRightPane.setForegroundAt(0, new Color(0, 230, 230));
             }
             splitPaneMain.setRightComponent(allChatRightPane);
         }
@@ -185,7 +195,7 @@ public class acebotsthree extends JFrame {
         {
             inputTab.setTabPlacement(SwingConstants.BOTTOM);
             inputTab.setBackground(Color.black);
-            inputTab.setForeground(new Color(0, 230, 230));
+            inputTab.setForeground(new Color(128, 128, 128));
             inputTab.setBorder(null);
             inputTab.setOpaque(true);
             inputTab.setMaximumSize(new Dimension(1200, 36));
@@ -213,14 +223,19 @@ public class acebotsthree extends JFrame {
         contentPane.add(accountListBox, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 0, 0), 0, 0));
-        setSize(1000, 580);
+        setSize(1201, 600);
         setLocationRelativeTo(getOwner());
 
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
 
-    // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
-    // Generated using JFormDesigner Evaluation license - Bob Joe
+    public void setJList(DefaultListModel<String> uList)
+    {
+        //System.out.println("asdf");
+        //dListModel = uList;
+    }
+
+    private DefaultListModel<String> dListModel;
     public JMenuBar menuBar;
     public JMenu botMenu;
     public JMenuItem loadAccountItem;
@@ -235,7 +250,7 @@ public class acebotsthree extends JFrame {
     public JScrollPane scrollPane3;
     public JTextPane allChatRightBox;
     public JScrollPane scrollPane1;
-    public JList channelUserList;
+    public JList<String> channelUserList;
     public JTabbedPane inputTab;
     public JTextField inputField;
     public JComboBox accountListBox;

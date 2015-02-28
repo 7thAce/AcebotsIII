@@ -23,6 +23,7 @@ public class MessageDisplay {
         acebotCore = core;
         acebotCore.subscribe("onMessage", new MessageActionListener());
         acebotCore.subscribe("onMe", new EmoteActionListener());
+        //acebotCore.subscribe("onPrivateMessage", new PrivateActionListener());
     }
 
     private class MessageActionListener implements ActionListener {
@@ -35,7 +36,9 @@ public class MessageDisplay {
 
             if (!args[1].equals("jtv"))
             {
-                int r,g,b;
+
+                int r=0,g=0,b=0;
+                try {
                 if (messageInfo[1].equals("")) {
                     r = g = b = 100;
                 } else {
@@ -43,7 +46,11 @@ public class MessageDisplay {
                     g = Integer.valueOf(messageInfo[1].substring(3, 5), 16);
                     b = Integer.valueOf(messageInfo[1].substring(5, 7), 16);
                 }
-
+                } catch (Exception e1)
+                {
+                    System.out.println("Color error: " + messageInfo[1] + " :|: " + sender + " :|: " + message);
+                    e1.printStackTrace();
+                }
                 if (!messageInfo[0].equals(""))
                     messageInfo[0] = "[" + messageInfo[0] + "]";
 
@@ -67,7 +74,6 @@ public class MessageDisplay {
                     return;
                 if (messageArgs[0].equals("SPECIALUSER")) //Options: Subscriber, staff, admin, turbo, ?
                 {
-                    System.out.println("SU Line: " + messageArgs[0]);
                     if (acebotCore.isMod(channel, sender))
                     {
                         System.out.println("A mod");
@@ -107,4 +113,12 @@ public class MessageDisplay {
             acebotCore.printlnAll(args[1] + args[0].substring(0,4) + " " + args[2], new Color(180,0,0));
         }
     }
+    /*
+    private class PrivateActionListener implements ActionListener {
+        public void actionPerformed(ActionEvent e)
+        {
+            String[] args = getArgs(e);
+            System.out.println(args[0] + ": " + args[1]);
+        }
+    }   */
 }

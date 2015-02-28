@@ -16,6 +16,7 @@ import java.util.List;
 import graphics.acebotsthree;
 
 import javax.swing.*;
+import javax.swing.Timer;
 
 import static u.u.appendTextPane;
 import static u.u.addHash;
@@ -33,12 +34,14 @@ public class BotCore extends PircBot {
     public final static int OUTPUT_INTERNAL = 0;
     public final static int OUTPUT_CHANNEL = 1;
     private acebotsthree acebotsGUI;
+    private boolean isConnected;
 
     public BotCore() { }
 
-    public BotCore(String username, String password, String server, String initChannel)
+    public BotCore(String username, String password, String server, int port, String initChannel)
     {
-        //JOptionPane.showMessageDialog(null, "I raq.");
+        //JOptionPane.showMessageDialog(null, "Core class");
+        //setVerbose(true);
         alMap.put("onLoad", new ArrayList<ActionListener>());
         alMap.put("onMessage", new ArrayList<ActionListener>());
         alMap.put("onCommand", new ArrayList<ActionListener>());
@@ -60,19 +63,34 @@ public class BotCore extends PircBot {
         alMap.put("onConnect", new ArrayList<ActionListener>());
         alMap.put("onDisconnect", new ArrayList<ActionListener>());
         alMap.put("onSubscribe", new ArrayList<ActionListener>());
+        alMap.put("onGameChange", new ArrayList<ActionListener>());
+        alMap.put("onTitleChange", new ArrayList<ActionListener>());
+        alMap.put("onStreamGoesOnline", new ArrayList<ActionListener>());
+        alMap.put("onStreamGoesOffline", new ArrayList<ActionListener>());
 
         messageQueue = new Queue(this);
-        setLogin(username);
-        setName(username);
+
 
         loadUsers();
         bootPluginSystem();
 
-        int port = 80;
+        port = 80;
 
         acebotsGUI = new acebotsthree();
         //acebotsGUI = new Maingui(server, port, username)
+        acebotsConnect(username, password, server, port, initChannel);
 
+
+        fire("onLoad", new String[]{});
+        printTitleLine("Moderating for 0 viewers.  Acebots III loaded!", new Color(255, 128, 0));
+        acebotsGUI.setTitle("Acebots III :|: Connected to " + server + ":" + port);
+        //sendMessage(initChannel, "I am connected as Acebots III!");
+    }
+
+    private void acebotsConnect(String username, String password, String server, int port, String initChannel)
+    {
+        setLogin(username);
+        setName(username);
         try {
             connect(server, port, password);
             fire("onConnect", new String[]{server, port + "", username});
@@ -92,10 +110,8 @@ public class BotCore extends PircBot {
             botJoinChannel(addHash(chan));
 
         sendRawLine("TWITCHCLIENT 3");
-        fire("onLoad", new String[]{});
-        printTitleLine("Acebots III Loaded!  Updates will be frequent so check back often.", new Color(255, 128, 0));
-        acebotsGUI.setTitle("(0) Acebots III :|: Connected to " + server + ":" + port);
-        //sendMessage(initChannel, "I am connected as Acebots III!");
+        fire("onConnect", new String[]{});
+        isConnected = true;
     }
 
     /* private HashMap<String, Channel> channelMap = new HashMap<String, Channel>();
@@ -116,6 +132,7 @@ public class BotCore extends PircBot {
     public final static String CMDSFILEPATH = "commands.txt";
     public final static String CUSTOMCMDSFILEPATH = "customcommands.txt";
     public final static String WRSFILEPATH = "WRs.txt";
+    public final static String WRLINKSFILEPATH = "wrlinks.txt";
     public final static String CONFIGFILEPATH = "config.txt";
     public final static String FILTERSFILEPATH = "filters.txt";
     public final static String[] RANKARRAY = {"Restricted", "User", "Power User", "Moderator", "Admin", "Owner", "Bot Console"};
@@ -152,7 +169,6 @@ public class BotCore extends PircBot {
             StringBuilder arguments = new StringBuilder();
             for (String arg:argumentsArray)
                 arguments.append(arg + "``");
-            System.out.println(arguments.toString() + event);
             for (ActionListener al:alMap.get(event))
                 al.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, arguments.toString().substring(0, Math.max(arguments.length() - 2, 0))));
         } catch (Exception e) {
@@ -169,6 +185,45 @@ public class BotCore extends PircBot {
             System.out.println("[Plugins] Could not create event " + name + ".");
     }
 
+    public void onDisconnect()
+    {
+        fire("onDisconnect", new String[]{});
+        isConnected = false;
+        System.out.println("I HAVE DISCONNECTED");
+        acebotsGUI.setTitle("Acebots III :|: Disconnected");
+        Timer reconnectTimer = new Timer(15000, reconnectAL);
+        if (isConnected)
+        {
+            reconnectTimer.stop();
+            return;
+        }
+        reconnectTimer.setInitialDelay(5000);
+        reconnectTimer.start();
+    }
+
+    ActionListener reconnectAL = new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            printAll("[" + BotCore.sdf.format(new Date()) + "] ", graphics.acebotsthree.TIMECOLOR);
+            printlnAll("[Acebots] Attempting to Reconnect", new Color(255,0,0));
+            try {
+                String info[] = new String[4];
+                FileReader fr = new FileReader("config.txt");
+                BufferedReader reader = new BufferedReader(fr);
+                for (int i = 0; i < 4; i++)
+                {
+                    try {
+                        info[i] = reader.readLine().split("=", 2)[1];
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+                acebotsConnect(info[0], info[1], info[2], 80, info[3]);
+            } catch (Exception e1) {
+                System.out.println("asdf error in rc");
+            }
+        }
+    };
+
     //Begin PircBot event handlers and fire our own
     public void onMessage(String channel, String sender, String login, String hostname, String message)
     {
@@ -182,8 +237,10 @@ public class BotCore extends PircBot {
         if (message.toLowerCase().startsWith("acebots iii, "))
             fire("onCommand", new String[]{channel, sender, "1", TRIGGER + message.split(" ", 3)[2]});
 
-        if (message.contains("just subscribed") && sender.equalsIgnoreCase("twitchnotify"))
-            fire("onSubscribe", new String[]{channel, message.split(" ")[0] +  "``"});
+        if ((message.contains("subscribed!") || message.contains("subscribed for")) && sender.equalsIgnoreCase("twitchnotify"))
+            fire("onSubscribe", new String[]{channel, message.split(" ")[0]});
+
+        //
         //sendMessage(channel, "We have received a message");
     }
 
@@ -347,7 +404,6 @@ public class BotCore extends PircBot {
         int userAccess;
         int channelAccess;
 
-
         if (user.equalsIgnoreCase(getNick()))
             return true;
 
@@ -356,29 +412,35 @@ public class BotCore extends PircBot {
         else
             userAccess = 1;
 
-        //if (isMod, isBroadcaster, give access)
-        //bool for subscribers get 2 access
-
         if (channelAccessMap.containsKey(channel.toLowerCase()))
             channelAccess = channelAccessMap.get(channel.toLowerCase());
         else
             channelAccess = 1;
 
         if (exceptionMap != null)
-            if (exceptionMap.containsKey(channel.toLowerCase()))
-                cReqAccess = exceptionMap.get(channel.toLowerCase());
+        {
+            for (String chan:exceptionMap.keySet())
+            {
+                if (chan.substring(1).equalsIgnoreCase(channel))
+                {
+                    cReqAccess = exceptionMap.get(chan);
+                }
+            }
+        }
 
       //if (isSubscriber(channel, user))
       //    userAccess = Math.max(2, userAccess);
 
-        if (isMod(channel, user)) //Default Moderator Access
+        if (isMod(channel, user))
             userAccess = Math.max(3, userAccess);
 
         if (channel.substring(1).equalsIgnoreCase(user))
             userAccess = Math.max(4, userAccess);
 
         if (userAccess >= uReqAccess && channelAccess >= cReqAccess)
+        {
             return true;
+        }
         else
             return false;
     }
@@ -498,14 +560,20 @@ public class BotCore extends PircBot {
         if (channelMap.containsKey(name.toLowerCase()))
         {
             try {
-            partChannel(name);
-            channelMap.remove(name);
-            acebotsGUI.allChatLeftPane.removeTabAt(acebotsGUI.allChatLeftPane.indexOfTab(addHash(name.toLowerCase())));
-            acebotsGUI.allChatRightPane.removeTabAt(acebotsGUI.allChatRightPane.indexOfTab(addHash(name.toLowerCase())));
-            acebotsGUI.inputTab.removeTabAt(acebotsGUI.inputTab.indexOfTab(addHash(name)));
-            acebotsGUI.channelListBox.removeItem(name);
-            fire("onBotLeave", new String[]{name});
-            return true;
+                partChannel(name);
+                channelMap.remove(name);
+                for (int i = 0; i < acebotsGUI.inputTab.getTabCount(); i++)
+                {
+                    if (acebotsGUI.inputTab.getTitleAt(i).endsWith(name.replace("#", "")))
+                    {
+                        acebotsGUI.allChatLeftPane.removeTabAt(i + 1);
+                        acebotsGUI.allChatRightPane.removeTabAt(i + 1);
+                        acebotsGUI.inputTab.removeTabAt(i);
+                        acebotsGUI.channelListBox.removeItem(name);
+                        fire("onBotLeave", new String[]{name});
+                        return true;
+                    }
+                }
             }
             catch (Exception e1)
             {
@@ -513,8 +581,7 @@ public class BotCore extends PircBot {
                 return false;
             }
         }
-        else
-            return false;
+        return false;
     }
 
     public void createCommand(String name, int userAccess, int channelAccess)

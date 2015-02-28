@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Queue;
 
 import Bot.BotCore;
 
@@ -20,8 +21,9 @@ public class Copypasta {
 	private HashMap<String, Boolean> channelEnabledMap = new HashMap<String, Boolean>();
 	private ArrayList<String> pastaMenu = new ArrayList<String>();
     private int characterLevel = 200;
-    HashMap<String, Timer> channelTimerMap = new HashMap<String, Timer>();
-	
+    private HashMap<String, Timer> channelTimerMap = new HashMap<String, Timer>();
+    private ArrayList<String> subHypeQueue = new ArrayList<String>();
+
 	public Copypasta() {
 	}
 	
@@ -36,11 +38,19 @@ public class Copypasta {
 		String[] cmdInfo = acebotCore.getCommandInfo("allowpasta");
 		userAccess = Integer.parseInt(cmdInfo[1]);
 		channelAccess = Integer.parseInt(cmdInfo[2]);
-		for (int i = 4; i < cmdInfo.length; i++)
+		for (int i = 3; i < cmdInfo.length; i++)
             accessExceptionMap.put(cmdInfo[i].substring(1).toLowerCase(), Integer.parseInt(cmdInfo[i].substring(0,1)));
-        for (String chan:acebotCore.getChannels())
-            channelEnabledMap.put(chan, false);
 	}
+
+    ActionListener resetTimer = new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            String channel = subHypeQueue.get(0);
+            subHypeQueue.remove(0);
+            channelTimerMap.get(channel).stop();
+            channelEnabledMap.put(channel, true);
+            System.out.println("disallowing sub hype for prev channel");
+        }
+    };
 
 	private class CommandActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
@@ -96,6 +106,10 @@ public class Copypasta {
 				{
 					if (message.toLowerCase().contains(pasta))
 					{
+                        if (sender.equalsIgnoreCase("jtv"))
+                            return;
+                        if (acebotCore.isMod(channel, sender))
+                            return;
 						acebotCore.addToQueue(channel, "/timeout " + sender + " 300", 1);
 						System.out.println("Pasta match: " + sender);
 					}
@@ -112,13 +126,24 @@ public class Copypasta {
         public void actionPerformed(ActionEvent e)
         {
             String[] args = getArgs(e);
+            String chan = args[0];
             channelEnabledMap.put(args[0], false);
+            channelEnabledMap.put(chan, false);
+            Timer timerThing = new Timer(60000, resetTimer);
+            channelTimerMap.put(chan, timerThing);
         }
     }
 
     private class SubscribeActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-
+            String[] args = getArgs(e);
+            if (channelEnabledMap.get(args[0]))
+            {
+                channelTimerMap.get(args[0]).start();
+                channelEnabledMap.put(args[0], false);
+                System.out.println("allowing sub hype for " + args[0]);
+                subHypeQueue.add(args[0]);
+            }
         }
     }
 }
