@@ -1,5 +1,5 @@
 This is Acebots III written by 7thAce, a Twitch.tv moderation and utiliy bot.
-Currently, the .jar file is in the works and should be out very soon! (for real!)
+Currently, the .jar file is in the works and should be out very soon! (for real! I promise! <3)
 
 Why Acebots?
 Acebots is highly customizable, more so than most other popular bots on twitch, such as Nightbot, Moobot, or Xanbot.
@@ -10,6 +10,7 @@ Finally, I try and make Acebots unique.  By making assumptions about chat and ap
 
 Download the .jar:
 COMING SOON TRUST ME <3
+I'll make a pastebin detailing what's going on here at the start of May (5th - 10th range)
 
 Known issues:
 Viewer count at the top is wrong over time.
