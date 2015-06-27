@@ -37,7 +37,7 @@ public class Subhype {
                 else if (channel.equalsIgnoreCase("#admiral_bahroo"))
                     acebotCore.addToQueue("#admiral_bahroo", "Welcome to the Rescue Force " + message.split(" ")[0] + "!",BotCore.OUTPUT_CHANNEL);
                 else if (channel.equalsIgnoreCase("#noobest"))
-                    acebotCore.addToQueue("#noobest", "Raise your Bears for the new sub " + message.split(" ")[0] + "!",BotCore.OUTPUT_CHANNEL);
+                    acebotCore.addToQueue("#noobest", "Raise your Suns for the new sub " + message.split(" ")[0] + "!",BotCore.OUTPUT_CHANNEL);
                 //else if (channel.equalsIgnoreCase("#geoff"))
                     //acebotCore.addToQueue("#geoff", "Welcome to the Geoof Troop " + message.split(" ")[0] + "!  You are the cutest goof in the troop!", BotCore.OUTPUT_CHANNEL);
             }

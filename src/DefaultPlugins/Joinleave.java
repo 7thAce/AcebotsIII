@@ -77,7 +77,7 @@ public class Joinleave {
                     else
                     {
                         for (int i = 1; i < channelArgs.length; i++)
-                            if(!acebotCore.botLeaveChannel(addHash(channelArgs[i])))
+                            if(!acebotCore.botLeaveChannel(addHash(channelArgs[i].toLowerCase())))
                                 allSuccessful = false;
                     //if (message.toLowerCase().endsWith("leave"))
                     //    return;

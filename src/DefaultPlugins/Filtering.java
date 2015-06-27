@@ -22,6 +22,9 @@ public class Filtering {
     private int channelAccess;
     private HashMap<String, Integer> accessExceptionMap = new HashMap<String,Integer>();
     private final String FILTERLOG = "filterlog.txt";
+    private final double CCVALUE = 0.80; //From 0 to 1, default 0.80
+    /* TODO - Config file this value */
+
 
 
     public Filtering() { }
@@ -38,7 +41,7 @@ public class Filtering {
         userAccess = Integer.parseInt(cmdInfo[1]);
         channelAccess = Integer.parseInt(cmdInfo[2]);
 
-        for (int i = 4; i < cmdInfo.length; i++)
+        for (int i = 3; i < cmdInfo.length; i++)
             accessExceptionMap.put(cmdInfo[i].substring(1).toLowerCase(), Integer.parseInt(cmdInfo[i].substring(0,1)));
 
         loadFilters();
@@ -88,14 +91,14 @@ public class Filtering {
         public void actionPerformed(ActionEvent e)
         {
             String[] args = getArgs(e);
-            if (args[1].equals("jtv"))
+            if (args[1].equals("jtv") || args[1].equals("nightbot"))
                 return;
             if (acebotCore.isMod(args[0], args[1]))
                 return;
             	if (!usernameFilter(args[0], args[1]))
             		if (!basicMessageFilter(args[0], args[1], args[2]))
-                        if (!superSimpleCleanup(args[0], args[1], args[2]))
-                            ;
+                        if (!superSimpleCleanup(args[0], args[1], args[2]));
+                            //if (!messageCC(args[0], args[1], args[2]));
         }
     }
 
@@ -108,7 +111,64 @@ public class Filtering {
             if (!usernameFilter(args[0], args[1]))
                 if (!basicMessageFilter(args[0], args[1], args[2]))
                     if (!superSimpleCleanup(args[0], args[1], args[2]));
+                        //if (!messageCC(args[0], args[1], args[2]));
         }
+    }
+
+    private boolean messageCC(String channel, String sender, String message)
+    {
+        if (!channel.equals("#cirno_tv"))
+            return false;
+
+        int duplicateWordCap = 15;
+        String[] words =  message.split(" ");
+        if (words.length < duplicateWordCap)
+            return false;
+
+        //<3 Encryptio
+        HashMap<String, Integer> wordsOccurrenceMap = new HashMap<String, Integer>();
+        for (int i = 0; i < words.length; i++)
+        {
+            if (wordsOccurrenceMap.containsKey(words[i].toLowerCase()))
+                wordsOccurrenceMap.put(words[i].toLowerCase(), wordsOccurrenceMap.get(words[i].toLowerCase()) + 1);
+            else
+                wordsOccurrenceMap.put(words[i].toLowerCase(), 1);
+        }
+        System.out.println("[" + (double)wordsOccurrenceMap.size() / words.length + "] is the message CC for " + sender + "'s message [" + message + "].");
+        if ((double)wordsOccurrenceMap.size() / words.length < (1.0 / duplicateWordCap))
+
+
+        //messageCC = (double)containsCount / (words.length - 1.0); //Currently only checking one thing.
+        //if (messageCC >= CCVALUE)
+        {
+            int offenseCount = 1;
+            if (userPunishMap.containsKey(sender.toLowerCase()))
+            {
+                offenseCount = userPunishMap.get(sender.toLowerCase()) + 1;
+            }
+            if (offenseCount == 1)
+            {
+                logFilter(channel, sender, message, "CC Purge 2s");
+                acebotCore.addToQueue(channel, "/timeout " + sender + " 2", 1 /*1*/);
+                //acebotCore.addToQueue(channel, "[Warning] Purging " + sender + ".", 1);
+            }
+            if (offenseCount == 2)
+            {
+                logFilter(channel, sender, message, "CC Timeout 2m");
+                acebotCore.addToQueue(channel, "/timeout " + sender + " 120", 1 /*1*/);
+                acebotCore.addToQueue(channel, "[WARNING] T/O 2m " + sender + ".", 1);
+            }
+            if (offenseCount >= 3)
+            {
+                logFilter(channel, sender, message, "CC Permaban");
+                acebotCore.addToQueue(channel, "[KAPOW] " + sender + " - Contact a mod if this ban is in error.", 1);
+                acebotCore.addToQueue(channel, "/ban " + sender, 1 /*1*/);
+            }
+            userPunishMap.put(sender.toLowerCase(), offenseCount);
+            return true;
+        }
+        return false;
+        //Later, we can classfiy (emotes) into one group and make it detect emote spam!
     }
 
     private class commandActionListener implements ActionListener {
@@ -121,7 +181,7 @@ public class Filtering {
             String message = args[3];
             if (isCommand("filter", message))
             {
-                if (acebotCore.hasAccess(channel, sender, channelAccess, userAccess, accessExceptionMap));
+                if (acebotCore.hasAccess(channel, sender, channelAccess, userAccess, accessExceptionMap))
                 {
                     String filterPhrase = message.substring(8);
                     String[] filterSplit = filterPhrase.split(" ");
@@ -150,6 +210,7 @@ public class Filtering {
                     {
                         out.close();
                         loadFilters();
+                        logFilter(channel, sender, message, "ADDED FILTER");
                         acebotCore.addToQueue(channel, "Filter added with punish level " + punishLevel + ".", Integer.parseInt(source));
                         return;
                     }
@@ -161,7 +222,7 @@ public class Filtering {
 
     private boolean basicMessageFilter(String channel, String sender, String message)
     {
-        if (message.toLowerCase().startsWith(BotCore.TRIGGER.toLowerCase() + "delfilter "))
+        if (message.toLowerCase().startsWith(BotCore.TRIGGER.toLowerCase() + "delfilter ") || message.toLowerCase().startsWith(BotCore.TRIGGER.toLowerCase() + "filter "))
             return false;
 
         for(String filterPhrase:messageFilterList)
@@ -177,20 +238,18 @@ public class Filtering {
                 {
                     offenseCount = Integer.parseInt(filterPhrase.substring(0, 1));
                 }
-
-                if (channel.toLowerCase().equalsIgnoreCase("#azorae") && offenseCount == 1)
-                {
-                    return false;
-                }
-
                 if (offenseCount == 1)
                 {
+                    if (channel.equalsIgnoreCase("#azorae"))
+                        return false;
                     logFilter(channel, sender, message, "Purge 2s");
                     acebotCore.addToQueue(channel, "/timeout " + sender + " 2", 1 /*1*/);
-                    acebotCore.addToQueue(channel, "[Warning] Purging " + sender + ".", 1);
+                    //acebotCore.addToQueue(channel, "[Warning] Purging " + sender + ".", 1);
                 }
                 if (offenseCount == 2)
                 {
+                    if (channel.equalsIgnoreCase("#azorae"))
+                        return false;
                     logFilter(channel, sender, message, "Timeout 2m");
                     acebotCore.addToQueue(channel, "/timeout " + sender + " 120", 1 /*1*/);
                     acebotCore.addToQueue(channel, "[WARNING] T/O 2m " + sender + ".", 1);
@@ -198,8 +257,17 @@ public class Filtering {
                 if (offenseCount >= 3)
                 {
                     logFilter(channel, sender, message, "Permaban");
-                    acebotCore.addToQueue(channel, "[KAPOW] " + sender + " - Contact a mod if this ban is in error.", 1);
+                    if (Integer.parseInt(filterPhrase.substring(0, 1)) != 3)
+                        acebotCore.addToQueue(channel, "[KAPOW] " + sender + " - Contact a mod if this ban is in error.", 1);
+                    else
+                        /*try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        } */
+                        acebotCore.addToQueue(channel, "", 1 /*1*/);
                     acebotCore.addToQueue(channel, "/ban " + sender, 1 /*1*/);
+
                 }
                 userPunishMap.put(sender.toLowerCase(), offenseCount);
                 return true;

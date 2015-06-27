@@ -119,7 +119,7 @@ public class Channel {
         acebotsGUI.inputTab.addTab(channelName, inputBox);
         acebotsGUI.inputTab.setForeground(new Color(128, 128, 128));
 
-        totalViewerCount = 0;
+        viewerCount = 0;
         inputTabChangeListener  = new InputTabListener();
 
         acebotsGUI.accountListBox.addActionListener(new ActionListener() {
@@ -300,7 +300,7 @@ public class Channel {
                         String[] keyValue = data[i].split("\":");
                         streamInfo.put(keyValue[0].toLowerCase(), stripQuotes(keyValue[1]));
                     }
-                    lookupDelay = 1 * 60 * 1000;
+                    lookupDelay = 1 * 60 * 1000;  //Check every minute
                     String updatedStreamTitle = streamInfo.get("status");
                     String updatedStreamGame = streamInfo.get("game");
                     totalViewerCount -= viewerCount;
@@ -341,12 +341,14 @@ public class Channel {
                 }
                 else
                 {
-                    lookupDelay = 5 * 60  * 1000;
+                    lookupDelay = 5 * 60  * 1000;  //Check every 5 minutes
                     if (isLive)
                     {
                         acebotCore.fire("onStreamGoesOffline", new String[]{channelName});
                         liveTime = (int)new Date().getTime();
                         isLive = false;
+                        totalViewerCount -= viewerCount;
+                        viewerCount = 0;
                         for (int i = 0; i < acebotsGUI.allChatLeftPane.getTabCount(); i++)
                         {
                             if (acebotsGUI.allChatLeftPane.getTitleAt(i).endsWith(channelName))
@@ -356,8 +358,7 @@ public class Channel {
                                 acebotsGUI.allChatRightPane.setTitleAt(i, "" + channelName );
                                 acebotsGUI.allChatRightPane.setForegroundAt(i, new Color(128, 128, 128));
                                 acebotsGUI.inputTab.setTitleAt(i - 1, "" + channelName);
-                                acebotsGUI.inputTab.setForegroundAt(i - 1, new Color(128, 128, 128
-                                ));
+                                acebotsGUI.inputTab.setForegroundAt(i - 1, new Color(128, 128, 128 ));
                             }
                         }
                     }

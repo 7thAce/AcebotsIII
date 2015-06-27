@@ -61,6 +61,8 @@ public class Wr {
             String source = args[2];
             String message = args[3];
 
+            if (!acebotCore.hasAccess(channel, sender, wrChannelAccess, wrUserAccess, wrAccessExceptionMap))
+                return;
 	        if (isCommand("wr", message))
 	        {
                 String streamGame = "";
@@ -311,7 +313,7 @@ public class Wr {
                                                 e.printStackTrace();
                                             }
                                             acebotCore.fire("onLoad", new String[]{""});
-                                            acebotCore.addToQueue(channel, "World record for " + gameName + " (" + categories + ") edited to " + time + " by " + runner, Integer.parseInt(source));
+                                            acebotCore.addToQueue(channel, "World record for " + gameName + " (" + categories + ") edited to " + time + " by " + runner + ".", Integer.parseInt(source));
                                             return;
                                         }
                                     }
@@ -339,7 +341,7 @@ public class Wr {
                                             e.printStackTrace();
                                         }
                                         acebotCore.fire("onLoad", new String[]{""});
-                                        acebotCore.addToQueue(channel, "World record for " + gameName + " (" + categories + ") edited to " + time + " by " + runner, Integer.parseInt(source));
+                                        acebotCore.addToQueue(channel, "World record for " + gameName + " (" + categories + ") edited to " + time + " by " + runner + ".", Integer.parseInt(source));
                                         return;
                                     }
                                 }
@@ -356,12 +358,12 @@ public class Wr {
                         if (out != null) {
                             out.close();
                             acebotCore.fire("onLoad", new String[]{""});
-                            acebotCore.addToQueue(channel, "Added new world record for " + gameName + " (" + categories + ") - " + time + " by " + runner, Integer.parseInt(source));
+                            acebotCore.addToQueue(channel, "Added new world record for " + gameName + " (" + categories + ") - " + time + " by " + runner + ".", Integer.parseInt(source));
                             return;
                         }
                     }
                     acebotCore.fire("onLoad", new String[]{""});
-                    acebotCore.addToQueue(channel, "World record for " + gameName + " (" + categories + ") edited to " + time + " by " + runner, Integer.parseInt(source));
+                    acebotCore.addToQueue(channel, "World record for " + gameName + " (" + categories + ") edited to " + time + " by " + runner + ".", Integer.parseInt(source));
                     return;
             	}
 	        }
@@ -391,9 +393,10 @@ public class Wr {
                     if (message.split(" ")[i].replace("?", "").equalsIgnoreCase("wr") || message.split(" ")[i].equalsIgnoreCase("record"))
                     {
                         if (message.contains("for "))
-                            acebotCore.fire("onCommand", new String[]{channel, sender, "1", "!wr " + message.split("for ")[1].replace("?", "")});
-                        else
-                            acebotCore.fire("onCommand", new String[]{channel, sender, "1", "!wr"});
+                            if(!message.split("for ")[1].contains("this"))
+                                acebotCore.fire("onCommand", new String[]{channel, sender, "1", "!wr " + message.split("for ")[1].replace("?", "")});
+                            else
+                                acebotCore.fire("onCommand", new String[]{channel, sender, "1", "!wr"});
                     }
                 }
             }
@@ -404,6 +407,7 @@ public class Wr {
                     if (message.split(" ")[i].replace("?", "").equalsIgnoreCase("wr") || message.split(" ")[i].equalsIgnoreCase("record"))
                     {
                         if (message.contains("for "))
+                            if(!message.split("for ")[1].contains("this"))
                             acebotCore.fire("onCommand", new String[]{channel, sender, "1", "!wr " + message.split("for ")[1].replace("?", "")});
                         else
                             acebotCore.fire("onCommand", new String[]{channel, sender, "1", "!wr"});

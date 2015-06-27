@@ -35,13 +35,19 @@ public class BotCore extends PircBot {
     public final static int OUTPUT_CHANNEL = 1;
     private acebotsthree acebotsGUI;
     private boolean isConnected;
+    private Color botColor;
 
     public BotCore() { }
 
     public BotCore(String username, String password, String server, int port, String initChannel)
     {
-        //JOptionPane.showMessageDialog(null, "Core class");
-        //setVerbose(true);
+        setVerbose(true);
+
+        /**
+         * Create a whole bunch of events that can be subscribed to.
+         * Events are called by the fire(event) and subscribed to by subscribe(event)
+         * Not all events are called, so if one is needed and isn't called properly, raise and issue
+         */
         alMap.put("onLoad", new ArrayList<ActionListener>());
         alMap.put("onMessage", new ArrayList<ActionListener>());
         alMap.put("onCommand", new ArrayList<ActionListener>());
@@ -59,7 +65,6 @@ public class BotCore extends PircBot {
         alMap.put("onNotice", new ArrayList<ActionListener>());
         alMap.put("onVoice", new ArrayList<ActionListener>());
         alMap.put("onMe", new ArrayList<ActionListener>());
-        alMap.put("onPing", new ArrayList<ActionListener>());
         alMap.put("onConnect", new ArrayList<ActionListener>());
         alMap.put("onDisconnect", new ArrayList<ActionListener>());
         alMap.put("onSubscribe", new ArrayList<ActionListener>());
@@ -67,6 +72,7 @@ public class BotCore extends PircBot {
         alMap.put("onTitleChange", new ArrayList<ActionListener>());
         alMap.put("onStreamGoesOnline", new ArrayList<ActionListener>());
         alMap.put("onStreamGoesOffline", new ArrayList<ActionListener>());
+        alMap.put("onServerPing", new ArrayList<ActionListener>());
 
         messageQueue = new Queue(this);
 
@@ -87,6 +93,15 @@ public class BotCore extends PircBot {
         //sendMessage(initChannel, "I am connected as Acebots III!");
     }
 
+    /**
+     * Connects the bot to twitch.tv with given parameters
+     * Implements the pircbot connect() method.
+     * @param username Username to connect with.
+     * @param password Password to conect with.  In safety, never stored in memory.
+     * @param server Server to connect to.
+     * @param port  Port to connect to the server with.
+     * @param initChannel Initial channels to join, multiples separated by commas.  # not required.
+     */
     private void acebotsConnect(String username, String password, String server, int port, String initChannel)
     {
         setLogin(username);
@@ -105,11 +120,15 @@ public class BotCore extends PircBot {
             e.printStackTrace();
         }
 
+        sendRawLine("CAP REQ :twitch.tv/membership");
+        sendRawLine("CAP REQ :twitch.tv/commands");
+        sendRawLine("CAP REQ :twitch.tv/tags");
+
         String[] initChannels = initChannel.split(",");
         for (String chan:initChannels)
             botJoinChannel(addHash(chan));
 
-        sendRawLine("TWITCHCLIENT 3");
+        //sendRawLine("TWITCHCLIENT 3");
         fire("onConnect", new String[]{});
         isConnected = true;
     }
@@ -197,7 +216,7 @@ public class BotCore extends PircBot {
             reconnectTimer.stop();
             return;
         }
-        reconnectTimer.setInitialDelay(5000);
+        reconnectTimer.setInitialDelay(10000);
         reconnectTimer.start();
     }
 
@@ -229,7 +248,8 @@ public class BotCore extends PircBot {
     {
         if (sender.equalsIgnoreCase(channel.substring(1)) && message.toLowerCase().equalsIgnoreCase("!kill"))
             System.exit(-5);
-        fire("onMessage", new String[]{channel, sender, message});
+        //This only gets fired for twitchnotify and other non-user messages.
+        fire("onMessage", new String[]{channel, sender, message, "#808080", "0", "0", "user"});
         if (message.substring(0, TRIGGER.length()).equals(TRIGGER))
             fire("onCommand", new String[]{channel, sender, "1", message});
         if (message.toLowerCase().startsWith(getNick().toLowerCase() + ", "))
@@ -239,9 +259,6 @@ public class BotCore extends PircBot {
 
         if ((message.contains("subscribed!") || message.contains("subscribed for")) && sender.equalsIgnoreCase("twitchnotify"))
             fire("onSubscribe", new String[]{channel, message.split(" ")[0]});
-
-        //
-        //sendMessage(channel, "We have received a message");
     }
 
     protected void onJoin(String channel, String sender, String login, String hostname)
@@ -282,6 +299,85 @@ public class BotCore extends PircBot {
     {
         fire("onPrivateMessage", new String[]{sender, message});
     }
+
+    protected void onNotice(String sourceNick, String sourceLogin, String sourceHostname, String target, String notice)
+    {
+        fire("onNotice", new String[]{});
+    }
+
+    protected void onTopic(String channel, String topic, String setBy, long date, boolean changed)
+    {
+        fire("onTopic", new String[]{});
+    }
+
+    protected void onOp(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient)
+    {
+        fire("onOP", new String[]{});
+    }
+
+    protected void onServerPing(String response) {
+        fire("onServerPing", new String[]{response});
+        sendRawLine("PONG " + response);
+    }
+
+    protected void onUnknown(String line) {
+
+        String[] messageInfo = line.split(" ", 5);
+        if (line.startsWith("@color"))
+        {
+            String[] newTwitchInfo = messageInfo[0].split(";");
+            String userColor;
+            try {
+                userColor = newTwitchInfo[0].split("=")[1];
+            }  catch (ArrayIndexOutOfBoundsException e1) {
+                userColor = "#646464"; //default no specified color
+            }
+
+            String sender;
+            try {
+                sender = newTwitchInfo[1].split("=")[1];
+            } catch (ArrayIndexOutOfBoundsException e1) {
+                sender = messageInfo[1].split("!")[0].substring(1);
+            }
+
+            if (sender.equalsIgnoreCase(this.getNick()))
+            {
+                int r,g,b;
+                r = Integer.valueOf(userColor.substring(1, 3), 16);
+                g = Integer.valueOf(userColor.substring(3, 5), 16);
+                b = Integer.valueOf(userColor.substring(5, 7), 16);
+                botColor = new Color(r,g,b);
+            }
+            else
+            {
+                //  String userEmotes = newTwitchInfo[2].split("=")[1];
+                String isSubscriber = newTwitchInfo[3].split("=")[1];
+                String isTurbo = newTwitchInfo[4].split("=")[1];
+
+                String userType;
+                try {
+                    userType = newTwitchInfo[5].split("=")[1];
+                }  catch (ArrayIndexOutOfBoundsException e1) {
+                    userType = "user";
+                }
+
+                String channel = messageInfo[3];
+                String message = messageInfo[4].substring(1);
+
+                fire("onMessage", new String[]{channel, sender, message, userColor, isSubscriber, isTurbo, userType});
+                if (message.substring(0, TRIGGER.length()).equals(TRIGGER))
+                    fire("onCommand", new String[]{channel, sender, "1", message});
+                if (message.toLowerCase().startsWith(getNick().toLowerCase() + ", "))
+                    fire("onCommand", new String[]{channel, sender, "1", TRIGGER + message.split(" ", 2)[1]});
+                if (message.toLowerCase().startsWith("acebots iii, "))
+                    fire("onCommand", new String[]{channel, sender, "1", TRIGGER + message.split(" ", 3)[2]});
+            }
+        }
+            //super.handleLine(line.split(" ", 2)[1]);
+        //System.out.println("And then there was twitch.");
+    }
+
+
 
     /*alMap.put("onFiltered", new ArrayList<ActionListener>());
     alMap.put("onInternalMessage", new ArrayList<ActionListener>());
@@ -399,6 +495,7 @@ public class BotCore extends PircBot {
         return classes;
     }
 
+    @Deprecated
     public boolean hasAccess(String channel, String user, int cReqAccess, int uReqAccess, HashMap<String, Integer> exceptionMap)
     {
         int userAccess;
@@ -421,15 +518,58 @@ public class BotCore extends PircBot {
         {
             for (String chan:exceptionMap.keySet())
             {
-                if (chan.substring(1).equalsIgnoreCase(channel))
+                if (chan.equalsIgnoreCase(channel))
                 {
                     cReqAccess = exceptionMap.get(chan);
                 }
             }
         }
 
-      //if (isSubscriber(channel, user))
-      //    userAccess = Math.max(2, userAccess);
+        if (isMod(channel, user))
+            userAccess = Math.max(3, userAccess);
+
+        if (channel.substring(1).equalsIgnoreCase(user))
+            userAccess = Math.max(4, userAccess);
+
+        if (userAccess >= uReqAccess && channelAccess >= cReqAccess)
+        {
+            return true;
+        }
+        else
+            return false;
+    }
+
+    public boolean hasAccess(String channel, String user, int cReqAccess, int uReqAccess, HashMap<String, Integer> exceptionMap, boolean isSubscriber)
+    {
+        int userAccess;
+        int channelAccess;
+
+        if (user.equalsIgnoreCase(getNick()))
+            return true;
+
+        if (userAccessMap.containsKey(user.toLowerCase()))
+            userAccess = userAccessMap.get(user.toLowerCase());
+        else
+            userAccess = 1;
+
+        if (channelAccessMap.containsKey(channel.toLowerCase()))
+            channelAccess = channelAccessMap.get(channel.toLowerCase());
+        else
+            channelAccess = 1;
+
+        if (exceptionMap != null)
+        {
+            for (String chan:exceptionMap.keySet())
+            {
+                if (chan.equalsIgnoreCase(channel))
+                {
+                    cReqAccess = exceptionMap.get(chan);
+                }
+            }
+        }
+
+        if (isSubscriber)
+            userAccess = Math.max(2, userAccess);
 
         if (isMod(channel, user))
             userAccess = Math.max(3, userAccess);
@@ -650,5 +790,10 @@ public class BotCore extends PircBot {
     public acebotsthree getGUI()
     {
         return acebotsGUI;
+    }
+
+    public Color getBotColor()
+    {
+        return botColor;
     }
 }

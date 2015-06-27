@@ -72,6 +72,19 @@ public class u {
         }
     }
 
+    public static boolean isDouble(String input)
+    {
+        try
+        {
+            Double.parseDouble(input);
+            return true;
+        }
+        catch(Exception e)
+        {
+            return false;
+        }
+    }
+
     public static String addHash(String channel)
     {
         if (!channel.substring(0,1).equals("#"))
@@ -90,8 +103,10 @@ public class u {
     public static boolean isValidTime(String time)
     {
         String[] times = time.split(":");
-        for (int i = 0; i < times.length; i++)
+        for (int i = 0; i < times.length - 1; i++)
             if (!isInteger(times[i]))
+                return false;
+            if (!isDouble(times[times.length - 1]))
                 return false;
         return true;
     }

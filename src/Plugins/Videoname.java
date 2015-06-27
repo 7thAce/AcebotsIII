@@ -71,7 +71,7 @@ public class Videoname {
                 String videoID = word.split("youtube.com/watch\\?v=")[1];
 
                 try {                                                                                 //YOU NEED A GOOGLE API KEY INSTRUCTIONS EVENTUALLY TM
-                    url = new URL("https://www.googleapis.com/youtube/v3/videos?id=" + videoID + "&key=<YOURKEYHERE>&part=snippet,contentDetails&fields=items(snippet/title,snippet/channelTitle,contentDetails/duration)");
+                    url = new URL("https://www.googleapis.com/youtube/v3/videos?id=" + videoID + "&key=AIzaSyBD-quFoBeVxEMdgZAcIDUQfokqwBepyOE&part=snippet,contentDetails&fields=items(snippet/title,snippet/channelTitle,contentDetails/duration)");
                     BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
                     String str;
                     while ((str = in.readLine()) != null) {
@@ -118,13 +118,10 @@ public class Videoname {
             if (minutes.length() == 1)
                 minutes = "0" + minutes;
         }
-        if (!minutes.equals("0"))
-        {
             if (seconds.equals(""))
                 seconds = "00";
             if (seconds.length() == 1)
                 seconds = "0" + seconds;
-        }
         if (hours.equals(""))
             return "Linked YouTube video: \"" + title + "\" by " + uploader + ". [" + minutes + ":" + seconds + "]";
         else

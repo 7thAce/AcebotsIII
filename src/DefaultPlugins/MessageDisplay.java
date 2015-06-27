@@ -13,7 +13,6 @@ import static u.u.*;
 public class MessageDisplay {
 
     private BotCore acebotCore;
-    private String[] messageInfo = {"",""};
     /* private String[] infoVariables = {"Prefix (Sub, Turbo, Admin, Staff)", "Color", "Something"}; Array in case they want to add things */
 
     public MessageDisplay() { }
@@ -23,7 +22,22 @@ public class MessageDisplay {
         acebotCore = core;
         acebotCore.subscribe("onMessage", new MessageActionListener());
         acebotCore.subscribe("onMe", new EmoteActionListener());
+        acebotCore.subscribe("onPrivateMessage", new PMActionListener());
         //acebotCore.subscribe("onPrivateMessage", new PrivateActionListener());
+    }
+
+    private class PMActionListener implements ActionListener {
+        public void actionPerformed(ActionEvent e)
+        {
+            String[] args = getArgs(e);
+            String sender = args[0];
+            String message = args[1];
+
+            /*acebotCore.printAll("[" + BotCore.sdf.format(new Date()) + "] ", graphics.acebotsthree.TIMECOLOR);
+            acebotCore.printAll(messageInfo[0] + args[1] + args[0].substring(0,4) + ": ", new Color(r, g, b));
+            acebotCore.printlnAll(args[2], new Color(230, 230, 230));
+            System.out.println("WHISPER: [" + sender + "] " + message);           */
+        }
     }
 
     private class MessageActionListener implements ActionListener {
@@ -33,40 +47,64 @@ public class MessageDisplay {
             String channel = args[0];
             String sender = args[1];
             String message = args[2];
-
+            String userColor = args[3];
+            boolean isSubscriber = args[4].equals("1");
+            boolean isTurbo = args[5].equals("1");
+            String userType = args[6];
+            StringBuilder prefix = new StringBuilder();
             if (!args[1].equals("jtv"))
             {
-
                 int r=0,g=0,b=0;
                 try {
-                if (messageInfo[1].equals("")) {
-                    r = g = b = 100;
-                } else {
-                    r = Integer.valueOf(messageInfo[1].substring(1, 3), 16);
-                    g = Integer.valueOf(messageInfo[1].substring(3, 5), 16);
-                    b = Integer.valueOf(messageInfo[1].substring(5, 7), 16);
-                }
+                    if (userColor.equals("")) {
+                        r = g = b = 100;
+                    } else {
+                        r = Integer.valueOf(userColor.substring(1, 3), 16);
+                        g = Integer.valueOf(userColor.substring(3, 5), 16);
+                        b = Integer.valueOf(userColor.substring(5, 7), 16);
+                    }
                 } catch (Exception e1)
                 {
-                    System.out.println("Color error: " + messageInfo[1] + " :|: " + sender + " :|: " + message);
+                    System.out.println("Color error: " + userColor + " :|: " + sender + " :|: " + message);
                     e1.printStackTrace();
                 }
-                if (!messageInfo[0].equals(""))
-                    messageInfo[0] = "[" + messageInfo[0] + "]";
 
-                acebotCore.printChannel(args[0], "[" + BotCore.sdf.format(new Date()) + "] ", graphics.acebotsthree.TIMECOLOR);
-                acebotCore.printChannel(args[0], messageInfo[0] + args[1] + ": ", new Color(r, g, b));
+                if (userType.equals("mod")) {
+                    if (sender.equalsIgnoreCase(channel.substring(1)))
+                        prefix.append("B");
+                    else
+                        prefix.append("M");
+                }
+                else if (userType.equals("global_mod")) {
+                    prefix.append("G"); } else
+                if (userType.equals("admin")) {
+                    prefix.append("A"); }else
+                if (userType.equals("staff")) {
+                    prefix.append("F"); }
+
+                if (isSubscriber)
+                    prefix.append("S");
+                if (isTurbo)
+                    prefix.append("T");
+
+                String stringPrefix;
+                if (prefix.length() > 0)
+                    stringPrefix = "[" + prefix.toString() + "]";
+                else
+                    stringPrefix = "";
+
+                acebotCore.printChannel(args[0], "[" + BotCore.sdf.format(new Date()) + "] ", graphics.acebotsthree.TIMECOLOR); //Time stamp
+                acebotCore.printChannel(args[0], stringPrefix + sender + ": ", new Color(r, g, b));
                 acebotCore.printlnChannel(args[0], args[2], new Color(230, 230, 230));
 
                 acebotCore.printAll("[" + BotCore.sdf.format(new Date()) + "] ", graphics.acebotsthree.TIMECOLOR);
-                acebotCore.printAll(messageInfo[0] + args[1] + args[0].substring(0,4) + ": ", new Color(r, g, b));
+                acebotCore.printAll(stringPrefix + sender + channel.substring(0,4) + ": ", new Color(r, g, b));
                 acebotCore.printlnAll(args[2], new Color(230, 230, 230));
-
-                messageInfo[0] = "";
-                messageInfo[1] = "";
             }
             else
             {
+                //old jtv stuff, shouldn't be used
+                /*System.out.println(message);
                 String[] messageArgs = message.split(" ");
                 if (messageArgs.length < 3)
                     return;
@@ -95,6 +133,9 @@ public class MessageDisplay {
                 }
                 else if (messageArgs[0].equals("USERCOLOR"))
                     messageInfo[1] = messageArgs[2];
+
+                //else if (messageArgs[0].equals("EMOTESET"))
+                //        System.out.println(message.split(" ")[1] + " is subbed to " + (message.split(",").length - 1));*/
             }
             if (args[1].equalsIgnoreCase("twitchnotify"))
                 System.out.println(args[2]);

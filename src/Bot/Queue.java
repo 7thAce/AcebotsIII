@@ -93,11 +93,11 @@ public class Queue implements ActionListener {
                 acebotCore.sendMessage(channel, messagesQueue.get(0).split(" ", 2)[1]);
                 //GLOBAL'D -
                 acebotCore.printChannel(channel, "[" + BotCore.sdf.format(new Date()) + "] ", graphics.acebotsthree.TIMECOLOR);
-                acebotCore.printChannel(channel, acebotCore.getNick() + ": ", new Color(180,0,0));
+                acebotCore.printChannel(channel, acebotCore.getNick() + ": ", acebotCore.getBotColor());
                 acebotCore.printlnChannel(channel, messagesQueue.get(0).split(" ", 2)[1], new Color(230, 230, 230));
 
                 acebotCore.printAll("[" + BotCore.sdf.format(new Date()) + "] ", graphics.acebotsthree.TIMECOLOR);
-                acebotCore.printAll(acebotCore.getNick() + channel.substring(0,4) + ": ", new Color(180,0,0));
+                acebotCore.printAll(acebotCore.getNick() + channel.substring(0,4) + ": ", acebotCore.getBotColor());
                 acebotCore.printlnAll(messagesQueue.get(0).split(" ", 2)[1], new Color(230, 230, 230));
                       
                 activeDelay = calculateNewDelay();

@@ -85,7 +85,7 @@ public class Whoami {
                     if (sender.equalsIgnoreCase(acebotCore.getNick()))
                         userAccess = 6;
 
-                    acebotCore.addToQueue(channel, "You, " + sender + " has access level " + userAccess + " (" + BotCore.RANKARRAY[userAccess] + ").", Integer.parseInt(source));
+                    acebotCore.addToQueue(channel, "You, " + sender + " have access level " + userAccess + " (" + BotCore.RANKARRAY[userAccess] + ").", Integer.parseInt(source));
                 }
             }
 
@@ -100,6 +100,12 @@ public class Whoami {
                         target = message.split(" ")[1];
                     
                     int userAccess;
+
+                    if (acebotCore.channelAccessMap.containsKey(target.toLowerCase()))
+                    {
+                        acebotCore.addToQueue(channel, target + " has access level " + acebotCore.channelAccessMap.get(target.toLowerCase()) + ".", Integer.parseInt(source));
+                        return;
+                    }
 
                     if (acebotCore.userAccessMap.containsKey(target.toLowerCase()))
                         userAccess = acebotCore.userAccessMap.get(target.toLowerCase());
