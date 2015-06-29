@@ -1,45 +1,46 @@
 package data;
 
-import java.util.Date;
+import java.util.Calendar;
+import java.util.Calendar;
 
 public class StreamStatus {
 
-    private Date streamStart;
-    private Date gameStart;
+    private Calendar streamStart;
+    private Calendar gameStart;
     private String previousGameName;
 
     public StreamStatus() { }
 
-    public StreamStatus(Date streamStartTime, Date gameStartTime, String newGameName)
+    public StreamStatus(Calendar streamStartTime, Calendar gameStartTime, String newGameName)
     {
         streamStart = streamStartTime;
         gameStart = gameStartTime;
         previousGameName = newGameName;
     }
 
-    public StreamStatus(Date gameStartTime, String newGameName)
+    public StreamStatus(Calendar gameStartTime, String newGameName)
     {
         gameStart = gameStartTime;
         previousGameName = newGameName;
         //Twitch provides us the ability to pull start time from API so we can look it up here if we want.
     }
 
-    public Date getStreamStart()
+    public Calendar getStreamStart()
     {
         return streamStart;
     }
 
-    public void setStreamStart(Date newStreamStart)
+    public void setStreamStart(Calendar newStreamStart)
     {
         streamStart = newStreamStart;
     }
 
-    public Date getGameStart()
+    public Calendar getGameStart()
     {
         return gameStart;
     }
 
-    private void setGameStart(Date newGameStart)
+    private void setGameStart(Calendar newGameStart)
     {
         gameStart = newGameStart;
     }
@@ -55,6 +56,6 @@ public class StreamStatus {
         if (previousGameName.equals("Offline"))
             setGameStart(null);
         else
-            setGameStart(new Date());
+            setGameStart(Calendar.getInstance());
     }
 }

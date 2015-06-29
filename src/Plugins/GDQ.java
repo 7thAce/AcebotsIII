@@ -59,11 +59,7 @@ public class GDQ {
                         long milliseconds1 = start.getTimeInMillis();
                         long milliseconds2 = end.getTimeInMillis();
                         long diff = milliseconds1 - milliseconds2;
-                    /*long diffHrs = diff / (60 * 60 * 1000);
-                    diff = diff - diffHrs * (60 * 60 * 1000);
-                    long diffMins = diff / (60 * 1000);   */
                         long diffDays = (int)(diff / (1000 * 60 * 60 * 24));
-                        System.out.println(diffDays + "asdf");
                         //String timeStr = diffHrs + " hours, " + diffMins + " minutes";
 
 

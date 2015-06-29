@@ -41,7 +41,7 @@ public class BotCore extends PircBot {
 
     public BotCore(String username, String password, String server, int port, String initChannel)
     {
-        setVerbose(true);
+        //setVerbose(true);
 
         /**
          * Create a whole bunch of events that can be subscribed to.
@@ -168,18 +168,6 @@ public class BotCore extends PircBot {
             e.printStackTrace();
         }
     }
-
-    /* public void fire(String event, String arguments)
-    {
-        //System.out.println("Firing " + event);
-        try {
-            for (ActionListener al:alMap.get(event))
-                al.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, arguments));
-        } catch (Exception e) {
-            System.out.println("Error in event: " + event);
-            e.printStackTrace();
-        }
-    }  */
 
     public void fire(String event, String[] argumentsArray)
     {

@@ -125,7 +125,6 @@ public class CustomCommandSystem {
                         for (CustomCommand cc:commandMap.values())
                         {
                             writer.println(cc.getCmd() + addHash(cc.getChannel()) + " " + cc.getUserAccess() + " " + cc.getChannelAccess() + " " + cc.getResponse());
-                            System.out.println(cc.getCmd() + cc.getChannel());
                         }
                         writer.close();
                     } catch (FileNotFoundException e1) {
