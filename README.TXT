@@ -9,12 +9,10 @@ At the current time, Acebots is also a relatively small bot (in terms of userbas
 Finally, I try and make Acebots unique.  By making assumptions about chat and applying those in clever ways, Acebots can appear much "smarter" than other bots.
 
 Download the .jar:
-COMING SOON TRUST ME <3
-I'll make a pastebin detailing what's going on here at the start of May (5th - 10th range)
+https://github.com/7thAce/AcebotsIII/releases
 
 Known issues:
-Viewer count at the top is wrong over time.
-Tracking some issues with the Updated Stram Title not pulling properly.
+Tracking some issues with the Updated Stream Title not pulling properly.
 Reconnect code just flat out doesn't work.
 The whole right pane is not used.  Consider removing or repurposing (user list causes a lot of issues)
 
@@ -26,7 +24,7 @@ Some other stuff I haven't thought of in the last 3 minutes
 
 Licensing: In short: If you're gonna do anything with the code or ideas presented here, just make sure it in some way points back here as credit. Don't take the code/ideas here and pass them as your own.
 
-Copyright (c) 2014 by 7thAce
+Copyright (c) 2014-2015 by 7thAce
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
