@@ -76,15 +76,15 @@ public class Uptime {
                         streamTimeDiff -= streamTimeDiffHours * 3600;
                         long streamTimeDiffMins = (streamTimeDiff / 60);
 
-                        if (Math.abs(streamTimeDiff) < 300000) //game time matches start time within 5 minutes                                                                                               /
+                        if (Math.abs(streamTimeDiff - gameTimeDiff) < 600) //game time matches start time within 10 minutes                                                                                               /
                         {
                             acebotCore.addToQueue(channel, channel.substring(1) + " has been live for " + streamTimeDiffHours + " hours, " + streamTimeDiffMins + " minutes" +
                                     " and has been playing " + channelStreamMap.get(channel.substring(1)).getPreviousGameName() + " for the entire time." , Integer.parseInt(source));
                         }
                         else
                         {
-                            acebotCore.addToQueue(channel, channel.substring(1) + " has been live for " + streamTimeDiffHours + ":" + streamTimeDiffMins +
-                                    " and has been playing " + channelStreamMap.get(channel.substring(1)).getPreviousGameName() + " for " + gameTimeDiffHours + " hours, " + gameTimeDiffMins + "minutes." , Integer.parseInt(source));
+                            acebotCore.addToQueue(channel, channel.substring(1) + " has been live for " + streamTimeDiffHours + " hours, " + streamTimeDiffMins + " minutes" +
+                                    " and has been playing " + channelStreamMap.get(channel.substring(1)).getPreviousGameName() + " for " + gameTimeDiffHours + " hours, " + gameTimeDiffMins + " minutes." , Integer.parseInt(source));
                         }
                     }
                     else

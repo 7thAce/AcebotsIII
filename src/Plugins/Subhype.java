@@ -14,6 +14,7 @@ public class Subhype {
     public Subhype() { }
     public Subhype(BotCore core)
     {
+        System.out.println("Loading subhype test");
         acebotCore = core;
         acebotCore.subscribe("onMessage", new SubListener());
         //why don't I just use onsubscribe?
@@ -34,8 +35,8 @@ public class Subhype {
                     acebotCore.addToQueue("#professorbroman", message.split(" ")[0] + " is now Legendary!  Welcome to the Broforce!",BotCore.OUTPUT_CHANNEL);
                 else if (channel.equalsIgnoreCase("#azorae"))
                     acebotCore.addToQueue("#azorae", "Take a peek at the new sub " + message.split(" ")[0] + "!",BotCore.OUTPUT_CHANNEL);
-                else if (channel.equalsIgnoreCase("#admiral_bahroo"))
-                    acebotCore.addToQueue("#admiral_bahroo", "Welcome to the Rescue Force " + message.split(" ")[0] + "!",BotCore.OUTPUT_CHANNEL);
+                //else if (channel.equalsIgnoreCase("#admiral_bahroo"))
+                //    acebotCore.addToQueue("#admiral_bahroo", "Welcome to the Rescue Force " + message.split(" ")[0] + "!",BotCore.OUTPUT_CHANNEL);
                 else if (channel.equalsIgnoreCase("#noobest"))
                     acebotCore.addToQueue("#noobest", "Raise your Suns for the new sub " + message.split(" ")[0] + "!",BotCore.OUTPUT_CHANNEL);
                 //else if (channel.equalsIgnoreCase("#geoff"))
@@ -43,8 +44,8 @@ public class Subhype {
             }
             else if (sender.equalsIgnoreCase("twitchnotify") && message.contains("subscribed for"))
             {
-                if (channel.equalsIgnoreCase("#admiral_bahroo"))
-                    acebotCore.addToQueue("#admiral_bahroo", "Thank you for your continued support to the Rescue Force " + message.split(" ")[0] + "!",BotCore.OUTPUT_CHANNEL);
+            //    if (channel.equalsIgnoreCase("#admiral_bahroo"))
+             //       acebotCore.addToQueue("#admiral_bahroo", "Thank you for your continued support to the Rescue Force " + message.split(" ")[0] + "!",BotCore.OUTPUT_CHANNEL);
                 if (channel.equalsIgnoreCase("#cirno_tv"))
                     acebotCore.addToQueue("#cirno_tv", "Thank you for your continued support to the Baka Brigade " + message.split(" ")[0] + "!",BotCore.OUTPUT_CHANNEL);
             }

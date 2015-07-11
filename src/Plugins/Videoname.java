@@ -1,7 +1,6 @@
 package Plugins;
 
 import Bot.BotCore;
-import sun.org.mozilla.javascript.internal.json.JsonParser;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -71,7 +70,7 @@ public class Videoname {
                 String videoID = word.split("youtube.com/watch\\?v=")[1];
 
                 try {                                                                                 //YOU NEED A GOOGLE API KEY INSTRUCTIONS EVENTUALLY TM
-                    url = new URL("https://www.googleapis.com/youtube/v3/videos?id=" + videoID + "&key=AIzaSyBD-quFoBeVxEMdgZAcIDUQfokqwBepyOE&part=snippet,contentDetails&fields=items(snippet/title,snippet/channelTitle,contentDetails/duration)");
+                    url = new URL("https://www.googleapis.com/youtube/v3/videos?id=" + videoID + "&key=<KEY>&part=snippet,contentDetails&fields=items(snippet/title,snippet/channelTitle,contentDetails/duration)");
                     BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
                     String str;
                     while ((str = in.readLine()) != null) {

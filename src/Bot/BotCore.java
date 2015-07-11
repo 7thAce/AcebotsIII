@@ -1,7 +1,7 @@
 package Bot;
 
-import org.jibble.pircbot.IrcException;
-import org.jibble.pircbot.PircBot;
+import pircbot.IrcException;
+import pircbot.PircBot;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -12,6 +12,10 @@ import java.net.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import graphics.acebotsthree;
 
@@ -80,7 +84,7 @@ public class BotCore extends PircBot {
         loadUsers();
         bootPluginSystem();
 
-        port = 80;
+        port = 6667;
 
         acebotsGUI = new acebotsthree();
         //acebotsGUI = new Maingui(server, port, username)
@@ -106,6 +110,7 @@ public class BotCore extends PircBot {
     {
         setLogin(username);
         setName(username);
+        //setUser(username);
         try {
             connect(server, port, password);
             fire("onConnect", new String[]{server, port + "", username});
@@ -268,6 +273,7 @@ public class BotCore extends PircBot {
     {
         if (mode.contains("+o"))
         {
+            System.out.println(mode.split(" ")[2].toLowerCase() + mode.split(" ")[0]);
             modList.add(mode.split(" ")[2].toLowerCase() + mode.split(" ")[0]);
         }
         fire("onUserMode", new String[]{targetNick, sourceNick, mode});
@@ -352,6 +358,14 @@ public class BotCore extends PircBot {
                 String channel = messageInfo[3];
                 String message = messageInfo[4].substring(1);
 
+                if (userType.equals("mod")) {
+                    if (!modList.contains(sender.toLowerCase() + addHash(channel))) {
+                        System.out.println("Added mod " + sender + addHash(channel));
+                        modList.add(sender.toLowerCase() + addHash(channel));
+                        //Super shitty temporary fix thing.
+                    }
+                }
+
                 fire("onMessage", new String[]{channel, sender, message, userColor, isSubscriber, isTurbo, userType});
                 if (message.substring(0, TRIGGER.length()).equals(TRIGGER))
                     fire("onCommand", new String[]{channel, sender, "1", message});
@@ -381,8 +395,11 @@ public class BotCore extends PircBot {
     {
         Class[] defaultPlugins = loadPlugins("DefaultPlugins");
 		Class[] extraPlugins = loadPlugins("Plugins");
+        System.out.println(defaultPlugins.length + " is the default len");
+
         for (int i = 0; i < defaultPlugins.length; i++)
         {
+            System.out.println(defaultPlugins[i].getName() + " attempting load");
             try {
                 objectMap.put(defaultPlugins[i].getName().substring(15).toLowerCase(), BotCore.class.getClassLoader().loadClass(defaultPlugins[i].getName()).getConstructor(BotCore.class).newInstance(this));
             } catch (InstantiationException e) {
@@ -434,8 +451,7 @@ public class BotCore extends PircBot {
         fire("onReload", new String[]{});
     }
 
-    private static Class[] loadPlugins(String packageName)
-    {
+/*    private static Class[] loadPlugins(String packageName) {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         assert classLoader != null;
         String path = packageName.replace('.', '/');
@@ -451,9 +467,15 @@ public class BotCore extends PircBot {
             dirs.add(new File(resource.getFile()));
         }
         ArrayList<Class> classes = new ArrayList<Class>();
+        System.out.println(dirs.size());
         for (File directory : dirs) {
             try {
-                classes.addAll(findClasses(directory, packageName));
+                if(BotCore.class.getClassLoader().getResource("DefaultPlugins").getPath().contains(".jar")) {
+                    classes.addAll(findJarClasses(directory, packageName));
+                } else {
+                    classes.addAll(findClasses(directory, packageName));
+                }
+
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
@@ -461,25 +483,230 @@ public class BotCore extends PircBot {
         return classes.toArray(new Class[classes.size()]);
     }
 
-    private static List<Class> findClasses(File directory, String packageName) throws ClassNotFoundException
-    {
-        List<Class> classes = new ArrayList<Class>();
-        if (!directory.exists()) {
-        	System.out.println("No thing");
-            return classes;
+    private static List<Class> findJarClasses(File directory, String packageName) throws ClassNotFoundException {
+        System.out.println(new File(BotCore.class.getResource("").getPath()).getParent());
+        String s = new File(BotCore.class.getResource("").getPath()).getParent();
+        System.out.println("AceID: " + s);
+        s = s.replaceAll("(!|file:\\\\)", "");
+        if (s.startsWith("file")) { // Linux paths fix
+            s = s.substring(5);
+        }
+//        System.out.println("AceID2: " + s);
+        ArrayList<File> files = new ArrayList<File>();
+        try {
+            System.out.println("Trying to find the jar");
+//            System.out.println("path: \"" + s + "\"");
+            JarFile jar = new JarFile(s);
+//            System.out.println("Found jar");
+            Enumeration<JarEntry> entries = jar.entries();
+            while (entries.hasMoreElements()) {
+                JarEntry je = entries.nextElement();
+                if (je.getName().startsWith(packageName) && !je.getName().contains("$") && je.getName().contains(".class")) {
+//                    System.out.println(je.getName());
+                    String filePath = packageName + "/" + je.getName().substring(je.getName().indexOf("/") + 1, je.getName().length());
+                    System.out.println("AceID3: " + filePath);
+                    File f = new File(filePath);
+                        /*f.deleteOnExit();
+                        FileOutputStream resourceOS = new FileOutputStream(f);
+                        byte[] byteArray = new byte[1024];
+                        int i;
+                        InputStream classIS = BotCore.class.getClassLoader().getResourceAsStream(filePath);
+                        while ((i = classIS.read(byteArray)) > 0) {
+                            resourceOS.write(byteArray, 0, i);
+                        }
+                        classIS.close();
+                        resourceOS.close(); / () /
+                    files.add(f);
+                }
             }
+            jar.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+        List<Class> classes = new ArrayList<Class>();
+        System.out.println("directory: " + directory.getPath());
+//        if (!directory.exists()) {
+//            System.out.println("No thing");
+//            return classes;
+//        }
+        File[] files2 = directory.listFiles();
+        System.out.println(files2.length);
+        for (File file : files2) {
+            System.out.println("AceID5: " + file.getParentFile() + " & " + file.getName());
+
+            //if (file.isDirectory()) {
+                //assert !file.getName().contains(".");
+                classes.addAll(findClasses(file, packageName + "." + file.getName()));
+           // }
+//            else if (file.getName().endsWith(".class")) {
+            if (!file.getName().contains("$")) {
+                	/*
+	                	System.out.println("AceID4: " + Class.forName(packageName + '.' + file.getName()));
+	                    classes.add(Class.forName(packageName + '.' + file.getName() ));//.substring(0, file.getName().indexOf(".class"))));
+	//                    classes.add(Class.forName(packageName + '.' + file.getName().substring(0, file.getName().length() - 6)));
+	                    System.out.println("Class initiated"); /()/
+                List<String> classNames = new ArrayList<String>();
+                ZipInputStream zip;
+                try {
+                    zip = new ZipInputStream(new FileInputStream(s));
+
+                    for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) {
+                        if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
+                            // This ZipEntry represents a class. Now, what class does it represent?
+                            String className = file.getName().replace('/', '.'); // including ".class"
+                            classNames.add(className.substring(0, className.length() - ".class".length()));
+                        }
+                    }
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+//            }
+        }
+        return classes;
+    }
+
+    private static List<Class> findClasses(File directory, String packageName) throws ClassNotFoundException {
+        List<Class> classes = new ArrayList<Class>();
+        System.out.println("FC 1");
+        System.out.println("directory2: " + directory.getPath());
+        if (!directory.exists()) {
+            System.out.println("No thing");
+            return classes;
+        }
+        System.out.println("FC 2");
+        File[] files = directory.listFiles();
+        for (File file : files) {
+            if (file.isDirectory()) {
+                //assert !file.getName().contains(".");
+                classes.addAll(findClasses(file, packageName + "." + file.getName()));
+            } else if (file.getName().endsWith(".class")) {
+                System.out.println("AceID1:" + file.getName());
+                if (!file.getName().contains("$")) {
+                    classes.add(Class.forName(packageName + '.' + file.getName().substring(0, file.getName().length() - 6)));
+                }
+            }
+        }
+        System.out.println("Found classes length = " + classes.size());
+        return classes;
+    }*/
+
+    private static Class[] loadPlugins(String packageName) {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        assert classLoader != null;
+        String path = packageName.replace('.', '/');
+        Enumeration<URL> resources = null;
+        try {
+            resources = classLoader.getResources(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        List<File> dirs = new ArrayList<File>();
+        while (resources.hasMoreElements()) {
+            URL resource = resources.nextElement();
+            dirs.add(new File(resource.getFile()));
+        }
+        ArrayList<Class> classes = new ArrayList<Class>();
+        System.out.println(dirs.size());
+        for (File directory : dirs) {
+            try {
+                if(BotCore.class.getClassLoader().getResource("DefaultPlugins").getPath().contains(".jar")) {
+                    classes.addAll(findJarClasses(directory, packageName));
+                } else {
+                    classes.addAll(findClasses(directory, packageName));
+                }
+
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        return classes.toArray(new Class[classes.size()]);
+    }
+
+    private static List<Class> findJarClasses(File directory, String packageName) throws ClassNotFoundException {
+        System.out.println(new File(BotCore.class.getResource("").getPath()).getParent());
+        String s = new File(BotCore.class.getResource("").getPath()).getParent();
+        s = s.replaceAll("(!|file:\\\\)", "");
+        if (s.startsWith("file")) { // Linux paths fix
+            s = s.substring(5);
+        }
+        ArrayList<File> files = new ArrayList<File>();
+        try {
+            System.out.println("Trying to find the jar");
+//            System.out.println("path: \"" + s + "\"");
+            JarFile jar = new JarFile(s);
+//            System.out.println("Found jar");
+            Enumeration<JarEntry> entries = jar.entries();
+            while (entries.hasMoreElements()) {
+                JarEntry je = entries.nextElement();
+                if (je.getName().startsWith(packageName) && !je.getName().contains("$") && je.getName().contains(".class")) {
+//                    System.out.println(je.getName());
+                    try {
+                        String filePath = packageName + "/" + je.getName().substring(je.getName().indexOf("/") + 1, je.getName().length());
+//                        System.out.println(filePath);
+                        File f = File.createTempFile(filePath, null);
+                        FileOutputStream resourceOS = new FileOutputStream(f);
+                        byte[] byteArray = new byte[1024];
+                        int i;
+                        InputStream classIS = BotCore.class.getClassLoader().getResourceAsStream(filePath);
+                        while ((i = classIS.read(byteArray)) > 0) {
+                            resourceOS.write(byteArray, 0, i);
+                        }
+                        classIS.close();
+                        resourceOS.close();
+                        files.add(f);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+        List<Class> classes = new ArrayList<Class>();
+        System.out.println("directory: " + directory.getPath());
+//        if (!directory.exists()) {
+//            System.out.println("No thing");
+//            return classes;
+//        }
+//        File[] files = directory.listFiles();
+        for (File file : files) {
+            if (file.isDirectory()) {
+                assert !file.getName().contains(".");
+                //classes.addAll(findClasses(file, packageName + "." + file.getName()));
+            }
+//            else if (file.getName().endsWith(".class")) {
+            if (!file.getName().contains("$")) {
+                classes.add(Class.forName(packageName + '.' + file.getName().substring(0, file.getName().indexOf(".class"))));
+//                    classes.add(Class.forName(packageName + '.' + file.getName().substring(0, file.getName().length() - 6)));
+                System.out.println("Class initiated");
+            }
+//            }
+        }
+        return classes;
+    }
+
+    private static List<Class> findClasses(File directory, String packageName) throws ClassNotFoundException {
+        List<Class> classes = new ArrayList<Class>();
+        System.out.println("directory: " + directory.getPath());
+        if (!directory.exists()) {
+            System.out.println("No thing");
+            return classes;
+        }
         File[] files = directory.listFiles();
         for (File file : files) {
             if (file.isDirectory()) {
                 assert !file.getName().contains(".");
                 //classes.addAll(findClasses(file, packageName + "." + file.getName()));
-                } else if (file.getName().endsWith(".class")) {
-                    if (!file.getName().contains("$"))
-                    {
-                        classes.add(Class.forName(packageName + '.' + file.getName().substring(0, file.getName().length() - 6)));
-                    }
+            } else if (file.getName().endsWith(".class")) {
+                if (!file.getName().contains("$")) {
+                    classes.add(Class.forName(packageName + '.' + file.getName().substring(0, file.getName().length() - 6)));
                 }
             }
+        }
         return classes;
     }
 
@@ -513,12 +740,14 @@ public class BotCore extends PircBot {
             }
         }
 
+        System.out.println("HA: " + channel);
         if (isMod(channel, user))
             userAccess = Math.max(3, userAccess);
 
         if (channel.substring(1).equalsIgnoreCase(user))
             userAccess = Math.max(4, userAccess);
 
+        System.out.println("FA: " + userAccess);
         if (userAccess >= uReqAccess && channelAccess >= cReqAccess)
         {
             return true;

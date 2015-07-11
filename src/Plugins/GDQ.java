@@ -51,7 +51,7 @@ public class GDQ {
                     {
                         Calendar start = Calendar.getInstance();
                         Calendar end = Calendar.getInstance();
-                        start.set(2015, 7, 25, 12, 0, 0);
+                        start.set(2015, 7, 26, 12, 0, 0);
                         SimpleDateFormat sdf = new SimpleDateFormat("y M d H m s");
                         String date = sdf.format(new Date());
                         System.out.println(date);

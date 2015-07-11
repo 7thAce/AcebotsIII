@@ -377,7 +377,7 @@ public class Channel {
                 System.out.println("Failed to retrieve data for " + channelName + ". " + blah);
                 return;
             }
-            User[] ulist = acebotCore.getUsers("#" + channelName);
+            /*User[] ulist = acebotCore.getUsers("#" + channelName);
 
             userList.clear();
             for (User u:ulist)
@@ -385,7 +385,7 @@ public class Channel {
             userList.trimToSize();
 
             if (((String)acebotsGUI.channelListBox.getSelectedItem()).equalsIgnoreCase(channelName))
-                acebotsGUI.setJList(userList);
+                acebotsGUI.setJList(userList);*/
 
             channelLookup.setDelay(lookupDelay);
         }
