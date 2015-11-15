@@ -1,7 +1,7 @@
 package data;
 
 import java.util.Calendar;
-import java.util.Calendar;
+import java.util.TimeZone;
 
 public class StreamStatus {
 
@@ -56,6 +56,6 @@ public class StreamStatus {
         if (previousGameName.equals("Offline"))
             setGameStart(null);
         else
-            setGameStart(Calendar.getInstance());
+            setGameStart(Calendar.getInstance(TimeZone.getTimeZone("GMT")));
     }
 }

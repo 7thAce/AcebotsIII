@@ -67,14 +67,15 @@ public class Uptime {
                         long gameTimeDiffMins = (gameTimeDiff / 60);
 
                         Calendar streamStartTime = channelStreamMap.get(channel).getStreamStart();
-                        long streamTimeDiff = (Calendar.getInstance().getTimeInMillis() - streamStartTime.getTimeInMillis()) / 1000 + 3600 * 5;
+                        long streamTimeDiff = (Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTimeInMillis() - Calendar.getInstance(TimeZone.getTimeZone("GMT")).get(Calendar.DST_OFFSET) - streamStartTime.getTimeInMillis()) / 1000;
+                        System.out.println(Calendar.getInstance(TimeZone.getTimeZone("GMT")).get(Calendar.DST_OFFSET) + " dst " + streamTimeDiff);
                         long streamTimeDiffHours = (streamTimeDiff / 3600);
                         streamTimeDiff -= streamTimeDiffHours * 3600;
                         long streamTimeDiffMins = (streamTimeDiff / 60);
 
                         if (Math.abs(streamTimeDiff - gameTimeDiff) < 600) //game time matches start time within 10 minutes
                         {
-                            if (streamTimeDiffHours < 1)
+                            if (streamTimeDiffHours == 0)
                             {
                                 acebotCore.addToQueue(channel, channel.substring(1) + " has been live for " + streamTimeDiffMins + " minutes" +
                                         " and has been playing " + channelStreamMap.get(channel.substring(1)).getPreviousGameName() + " for the entire time.", Integer.parseInt(source));
@@ -87,14 +88,14 @@ public class Uptime {
                         }
                         else
                         {
-                            if (streamTimeDiffHours < 1)
+                            if (streamTimeDiffHours == 0)
                             {
                                 acebotCore.addToQueue(channel, channel.substring(1) + " has been live for " + streamTimeDiffMins + " minutes" +
                                         " and has been playing " + channelStreamMap.get(channel.substring(1)).getPreviousGameName() + " for " + gameTimeDiffMins + " minutes.", Integer.parseInt(source));
                             }
                             else
                             {
-                                if (gameTimeDiffHours < 1)
+                                if (gameTimeDiffHours == 0)
                                 {
                                     acebotCore.addToQueue(channel, channel.substring(1) + " has been live for " + streamTimeDiffHours + " hours, " + streamTimeDiffMins + " minutes" +
                                             " and has been playing " + channelStreamMap.get(channel.substring(1)).getPreviousGameName() + " for " + gameTimeDiffMins + " minutes.", Integer.parseInt(source));
@@ -168,7 +169,7 @@ public class Uptime {
 
                 String[] timeParts = streamInfo.get("created_at").split("T")[1].split(":");
                 String[] dateParts = streamInfo.get("created_at").split("T")[0].split("-");
-                Calendar onlineDateTime = Calendar.getInstance();
+                Calendar onlineDateTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
                 //Did you know that java months are 0 indexed?  Cool.
                 onlineDateTime.set(Integer.parseInt(dateParts[0]), Integer.parseInt(dateParts[1]) - 1, Integer.parseInt(dateParts[2]), Integer.parseInt(timeParts[0]), Integer.parseInt(timeParts[1]), 0);
