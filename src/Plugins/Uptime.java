@@ -26,7 +26,6 @@ public class Uptime {
     private int channelAccess;
     private HashMap<String, Integer> accessExceptionMap = new HashMap<String, Integer>();
     private HashMap<String, StreamStatus> channelStreamMap = new HashMap<String, StreamStatus>();
-    //Chosen to do this way over making a tiny data class for this.  If more info is added though, a data class may be helpful.
 
     public Uptime() { }
     public Uptime(BotCore core) {
@@ -76,20 +75,45 @@ public class Uptime {
                         streamTimeDiff -= streamTimeDiffHours * 3600;
                         long streamTimeDiffMins = (streamTimeDiff / 60);
 
-                        if (Math.abs(streamTimeDiff - gameTimeDiff) < 600) //game time matches start time within 10 minutes                                                                                               /
+                        if (Math.abs(streamTimeDiff - gameTimeDiff) < 600) //game time matches start time within 10 minutes
                         {
-                            acebotCore.addToQueue(channel, channel.substring(1) + " has been live for " + streamTimeDiffHours + " hours, " + streamTimeDiffMins + " minutes" +
-                                    " and has been playing " + channelStreamMap.get(channel.substring(1)).getPreviousGameName() + " for the entire time." , Integer.parseInt(source));
+                            if (streamTimeDiff < 3600)
+                            {
+                                acebotCore.addToQueue(channel, channel.substring(1) + " has been live for " + streamTimeDiffMins + " minutes" +
+                                        " and has been playing " + channelStreamMap.get(channel.substring(1)).getPreviousGameName() + " for the entire time.", Integer.parseInt(source));
+                            }
+                            else
+                            {
+                                acebotCore.addToQueue(channel, channel.substring(1) + " has been live for " + streamTimeDiffHours + " hours, " + streamTimeDiffMins + " minutes" +
+                                        " and has been playing " + channelStreamMap.get(channel.substring(1)).getPreviousGameName() + " for the entire time.", Integer.parseInt(source));
+                            }
                         }
                         else
                         {
-                            acebotCore.addToQueue(channel, channel.substring(1) + " has been live for " + streamTimeDiffHours + " hours, " + streamTimeDiffMins + " minutes" +
-                                    " and has been playing " + channelStreamMap.get(channel.substring(1)).getPreviousGameName() + " for " + gameTimeDiffHours + " hours, " + gameTimeDiffMins + " minutes." , Integer.parseInt(source));
+                            if (streamTimeDiff < 3600)
+                            {
+                                acebotCore.addToQueue(channel, channel.substring(1) + " has been live for " + streamTimeDiffMins + " minutes" +
+                                        " and has been playing " + channelStreamMap.get(channel.substring(1)).getPreviousGameName() + " for " + gameTimeDiffMins + " minutes.", Integer.parseInt(source));
+                            }
+                            else
+                            {
+                                if (gameTimeDiff < 3600)
+                                {
+                                    acebotCore.addToQueue(channel, channel.substring(1) + " has been live for " + streamTimeDiffHours + " hours, " + streamTimeDiffMins + " minutes" +
+                                            " and has been playing " + channelStreamMap.get(channel.substring(1)).getPreviousGameName() + " for " + gameTimeDiffMins + " minutes.", Integer.parseInt(source));
+                                }
+                                else
+                                {
+                                    acebotCore.addToQueue(channel, channel.substring(1) + " has been live for " + streamTimeDiffHours + " hours, " + streamTimeDiffMins + " minutes" +
+                                            " and has been playing " + channelStreamMap.get(channel.substring(1)).getPreviousGameName() + " for " + gameTimeDiffHours + " hours, " + gameTimeDiffMins + " minutes.", Integer.parseInt(source));
+                                }
+                            }
                         }
                     }
                     else
                     {
-                        if (null == channelStreamMap.get(channel.substring(1)))
+                        System.out.println(channelStreamMap.get(channel));
+                        if (null == channelStreamMap.get(channel))
                         {
                             acebotCore.addToQueue(channel, channel.substring(1) + " has been offline for as long as I can remember!", Integer.parseInt(source));
                         }
