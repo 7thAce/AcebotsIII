@@ -12,6 +12,7 @@ import static u.u.*;
 import data.WorldRecord;
 
 import Bot.BotCore;
+import u.u;
 
 public class Wr {
 
@@ -386,31 +387,43 @@ public class Wr {
             String channel = args[0];
             String sender = args[1];
             String message = args[2];
-            if (((message.toLowerCase().contains("what ") && message.toLowerCase().contains(" is ")) || (message.toLowerCase().contains("what's") || message.toLowerCase().contains("whats"))) && (message.toLowerCase().contains("wr") || message.toLowerCase().contains("record")))
+            if (((message.toLowerCase().contains("what ") && message.toLowerCase().contains(" is ")) || (message.toLowerCase().contains("what's") || message.toLowerCase().contains("whats"))) && (message.replace("?", "").toLowerCase().contains("wr") || message.replace("?", "").toLowerCase().contains("record")))
             {
                 for (int i = 0; i < message.split(" ").length; i++)
                 {
-                    if (message.split(" ")[i].replace("?", "").equalsIgnoreCase("wr") || message.split(" ")[i].equalsIgnoreCase("record"))
+                    if (message.split(" ")[i].replace("?", "").equalsIgnoreCase("wr") || message.split(" ")[i].replace("?", "").equalsIgnoreCase("record"))
                     {
-                        if (message.contains("for "))
-                            if(!message.split("for ")[1].contains("this"))
+                        if (message.contains("for ")) {
+                            if (!message.split("for ")[1].contains("this")) {
                                 acebotCore.fire("onCommand", new String[]{channel, sender, "1", "!wr " + message.split("for ")[1].replace("?", "")});
-                            else
+                            } else
+                            {
                                 acebotCore.fire("onCommand", new String[]{channel, sender, "1", "!wr"});
+                            }
+                        }
+                        else {
+                            acebotCore.fire("onCommand", new String[]{channel, sender, "1", "!wr"});
+                        }
                     }
                 }
             }
-            if (message.toLowerCase().contains("who ") && (message.toLowerCase().contains("has") || message.toLowerCase().contains("holds")) && (message.toLowerCase().contains("wr") || message.toLowerCase().contains("record")))
+            if (message.toLowerCase().contains("who ") && (message.toLowerCase().contains("has") || message.toLowerCase().contains("holds")) && (message.replace("?", "").toLowerCase().contains("wr") || message.replace("?", "").toLowerCase().contains("record")))
             {
                 for (int i = 0; i < message.split(" ").length; i++)
                 {
                     if (message.split(" ")[i].replace("?", "").equalsIgnoreCase("wr") || message.split(" ")[i].equalsIgnoreCase("record"))
                     {
-                        if (message.contains("for "))
-                            if(!message.split("for ")[1].contains("this"))
-                            acebotCore.fire("onCommand", new String[]{channel, sender, "1", "!wr " + message.split("for ")[1].replace("?", "")});
-                        else
+                        if (message.contains("for ")) {
+                            if (!message.split("for ")[1].contains("this")) {
+                                acebotCore.fire("onCommand", new String[]{channel, sender, "1", "!wr " + message.split("for ")[1].replace("?", "")});
+                            } else
+                            {
+                                acebotCore.fire("onCommand", new String[]{channel, sender, "1", "!wr"});
+                            }
+                        }
+                        else {
                             acebotCore.fire("onCommand", new String[]{channel, sender, "1", "!wr"});
+                        }
                     }
                 }
             }

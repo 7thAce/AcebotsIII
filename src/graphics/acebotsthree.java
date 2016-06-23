@@ -70,9 +70,9 @@ public class acebotsthree extends JFrame {
         setVisible(true);
         Container contentPane = getContentPane();
         contentPane.setLayout(new GridBagLayout());
-        ((GridBagLayout)contentPane.getLayout()).columnWidths = new int[] {863, 130, 0};
+        ((GridBagLayout)contentPane.getLayout()).columnWidths = new int[] {863,/* 130,*/ 0};
         ((GridBagLayout)contentPane.getLayout()).rowHeights = new int[] {0, 452, 50, 0};
-        ((GridBagLayout)contentPane.getLayout()).columnWeights = new double[] {1.0, 0.0, 1.0E-4};
+        ((GridBagLayout)contentPane.getLayout()).columnWeights = new double[] {1.0,/* 0.0,*/ 1.0E-4};
         ((GridBagLayout)contentPane.getLayout()).rowWeights = new double[] {0.0, 1.0, 0.0, 1.0E-4};
 
         //======== menuBar ========
@@ -116,7 +116,7 @@ public class acebotsthree extends JFrame {
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 2, 2), 0, 0));
 
-        //---- channelListBox ----
+        /*//---- channelListBox ----
         channelListBox.setMaximumRowCount(20);
         channelListBox.addActionListener(new ActionListener() {
             @Override
@@ -127,7 +127,7 @@ public class acebotsthree extends JFrame {
         contentPane.add(channelListBox, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 2, 0), 0, 0));
-
+*/
 
         //======== splitPaneMain ========
         {
@@ -176,7 +176,7 @@ public class acebotsthree extends JFrame {
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 2, 2), 0, 0));
 
-        //======== scrollPane1 ========
+        /*//======== scrollPane1 ========
         {
 
             //---- channelUserList ----
@@ -189,7 +189,7 @@ public class acebotsthree extends JFrame {
         }
         contentPane.add(scrollPane1, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                new Insets(0, 0, 2, 0), 0, 0));
+                new Insets(0, 0, 2, 0), 0, 0));*/
 
         //======== inputTab ========
         {
@@ -217,13 +217,13 @@ public class acebotsthree extends JFrame {
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 0, 2), 0, 0));
 
-        //---- accountListBox ----
+        /*//---- accountListBox ----
         accountListBox.setPreferredSize(new Dimension(20, 20));
         accountListBox.setEnabled(false);
         contentPane.add(accountListBox, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                new Insets(0, 0, 0, 0), 0, 0));
-        setSize(1201, 600);
+                new Insets(0, 0, 0, 0), 0, 0));*/
+        setSize(1065, 600);
         setLocationRelativeTo(getOwner());
 
         // JFormDesigner - End of component initialization  //GEN-END:initComponents

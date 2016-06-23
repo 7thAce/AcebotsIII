@@ -160,7 +160,8 @@ public class CustomCommandSystem {
 					acebotCore.addToQueue(channel, "Unable to delete Command " + args[1] + ".", Integer.parseInt(source));
 			}
 
-            if (commandMap.containsKey((message.toLowerCase().replace("/", "").replace("!",  "")).split(" ")[0] + channel)  && (message.startsWith("/") || message.startsWith("!")))
+
+            if (commandMap.containsKey((message.toLowerCase().replace("/", "").replace("!", "")).split(" ")[0] + channel)  && (message.startsWith("/") || message.startsWith("!")))
             {
                 CustomCommand customCmd = commandMap.get(message.toLowerCase().replace("/", "").replace("!",  "").split(" ")[0] + channel);
                 if (acebotCore.hasAccess(channel, sender, customCmd.getChannelAccess(), customCmd.getUserAccess(), null))
@@ -202,6 +203,53 @@ public class CustomCommandSystem {
                     acebotCore.addToQueue(channel, resp, Integer.parseInt(source));
                 }
             }
+            else
+            {
+                if(commandMap.containsKey(message.toLowerCase()/*.replace("/", "")*/.replace("!",  "").split(" ")[0] + "#global") && (message.startsWith("/") || message.startsWith("!")))
+                {
+                    CustomCommand customCmd = commandMap.get(message.toLowerCase().replace("/", "").replace("!",  "").split(" ")[0] + "#global");
+                    if (acebotCore.hasAccess(channel, sender, customCmd.getChannelAccess(), customCmd.getUserAccess(), null))
+                    {
+                        String[] fromArray = CustomCommand.fromArray;
+                        String[] toArray = {sender, sender, channel, channel.replace("#", ""), BotCore.sdf.format(new Date()), message.replace("/", "").replace("!",  "").split(" ")[0], acebotCore.getNick(), "", "", "", "", "", ""};
+
+                        String resp = customCmd.getResponse();
+
+                        for (int i = 0; i < fromArray.length; i++)
+                            resp = resp.replace(fromArray[i], toArray[i]);
+                        int i; //i is set to be local outside the for loop so we can use it for determining %+ since it's all of the rest of the args
+                        String prevMessage = message;
+                        for (i = 0; i < message.split(" ").length; i++)
+                        {
+                            resp = resp.replace("%" + i, message.split(" ")[i]);
+                            if (prevMessage.equals(resp))
+                                break;
+                            else
+                                prevMessage = resp;
+                        }
+/*					%+ will be the rest of the message that wasn't used in the arguments prior (+ for all other numbers)
+ * 					So, you can have set arguments for a few with a "text box" style input at the end where the bot will repeat the end of the message
+ * 					Example: !addcommand shoutout %b recommends you follow twitch.tv/%1! %+
+ * 					Usage:   !shoutout 7thAce Kappa b
+ * 					Output:  Acebots recommends you follow twitch.tv/7thace! Kappa b
+ * 					The !say command can be recreated with this functionality.
+ * 					Example: !addcommand 2 1 say %+
+ * 					Would recreate the entire functionality of the say command.
+*/
+                        if (resp.contains("%+"))
+                        {
+                            try {
+                                resp = resp.replace("%+", message.split(" ", i + 1)[i]);
+                            } catch (IndexOutOfBoundsException e1) {
+                                resp = resp.replace("%+", "");
+                            }
+                        }
+                        acebotCore.addToQueue(channel, resp, Integer.parseInt(source));
+                    }
+                }
+            }
+
+
 		}
 	}
 	

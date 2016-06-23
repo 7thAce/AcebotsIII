@@ -20,7 +20,7 @@ public class AcebotsIII {
             panel.add(label);
             JTextField textField = new JTextField(10);
             panel.add(textField);
-            String[] inputTexts = {"Username: ", "OAuth Password (not your twitch password): ", "Server (skip to use default): ", "Channels (separate multiple channels with): "};
+            String[] inputTexts = {"Username: ", "OAuth Password (not your twitch password): ", "Server (skip to use default): ", "Channels (separate multiple channels with \",\"): "};
             String[] inputs = new String[4];
 
             for (int i = 0; i < 4; i++)

@@ -11,9 +11,9 @@ public class WorldRecord {
 
     public WorldRecord(String game, String holder, String time, String categoriesString)
     {
-        this.game = game;
+        setGame(game);
         setWRholder(holder);
-        this.time = time;
+        setTime(time);
         categories = categoriesString.split(",");
     }
 

@@ -18,8 +18,6 @@ public class Deathgame {
     private HashMap<String, Integer> accessExceptionMap = new HashMap<String, Integer>();
     private boolean isTakingBets;
     private HashMap<String, Integer> userDeathMap = new HashMap<String, Integer>();
-    private int sumTest;
-    private int numberTest;
     private boolean paused;
 
     public Deathgame() { }
@@ -141,9 +139,6 @@ public class Deathgame {
                             if (userDeathMap.containsKey(sender) && i != 0)
                                 return;
                             userDeathMap.put(sender, Integer.parseInt(goForNumbers[i]));
-                            sumTest += Integer.parseInt(goForNumbers[i]);
-                            numberTest++;
-                            System.out.println("Average: " + Math.round((sumTest + 0.0) / numberTest));
                             return;
                         }
                     }

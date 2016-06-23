@@ -274,10 +274,10 @@ public class Channel {
                 URL url = new URL("https://api.twitch.tv/kraken/streams/" + channelName);
                 BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
                 blah = reader.readLine();
-                if(!(blah.endsWith("null}"))){
+                if(!(blah.endsWith("null}") || blah.startsWith("{\"stream\":null"))){
                     if (!isLive)
                     {
-                        acebotCore.fire("onStreamGoesOnline", new String[]{channelName});
+                        acebotCore.fire("onStreamGoesOnline", new String[]{addHash(channelName)});
                         isLive = true;
                         liveTime = (int)new Date().getTime();
                         for (int i = 0; i < acebotsGUI.allChatLeftPane.getTabCount(); i++)
@@ -314,7 +314,7 @@ public class Channel {
                         System.out.println(channelName + " has changed their game to " + updatedStreamGame);
                         gameTime = (int)new Date().getTime();
                         streamGame = updatedStreamGame;
-                        acebotCore.fire("onGameChange", new String[]{channelName, updatedStreamGame, gameTime + ""});
+                        acebotCore.fire("onGameChange", new String[]{addHash(channelName), updatedStreamGame, gameTime + ""});
                     }
 
                     if (streamTitle == null)
@@ -333,7 +333,7 @@ public class Channel {
                         System.out.println(channelName + " has changed their title to " + updatedStreamTitle);
                         streamTitle = updatedStreamTitle;
                         acebotsGUI.someExtraLabel.setText(acebotsGUI.someExtraLabel.getText().split("  ")[0] + "  " + channelName.substring(0,1).toUpperCase() + channelName.substring(1) + " - " + streamTitle + "  [" + streamGame + "].");
-                        acebotCore.fire("onTitleChange", new String[]{channelName, gameTime + "", updatedStreamGame});
+                        acebotCore.fire("onTitleChange", new String[]{addHash(channelName), gameTime + "", updatedStreamGame});
                     }
 
                     streamTitle = updatedStreamTitle;
@@ -344,7 +344,8 @@ public class Channel {
                     lookupDelay = 5 * 60  * 1000;  //Check every 5 minutes
                     if (isLive)
                     {
-                        acebotCore.fire("onStreamGoesOffline", new String[]{channelName});
+                        acebotCore.fire("onStreamGoesOffline", new String[]{addHash(channelName)});
+                        System.out.println(channelName + " has gone offline.");
                         liveTime = (int)new Date().getTime();
                         isLive = false;
                         totalViewerCount -= viewerCount;

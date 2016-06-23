@@ -63,14 +63,23 @@ public class Videoname {
         for (String word:parts)
         {
             if (word.contains("youtu.be/"))
-                word = word.replace("youtu.be/", "www.youtube.com/watch?v=");
+            {
+                if (word.contains("?list="))
+                {
+                    return "";
+                }
+                else
+                {
+                    word = word.replace("youtu.be/", "www.youtube.com/watch?v=");
+                }
+            }
 
             if (word.contains("youtube.com/watch"))
             {
                 String videoID = word.split("youtube.com/watch\\?v=")[1];
 
                 try {                                                                                 //YOU NEED A GOOGLE API KEY INSTRUCTIONS EVENTUALLY TM
-                    url = new URL("https://www.googleapis.com/youtube/v3/videos?id=" + videoID + "&key=<KEY>&part=snippet,contentDetails&fields=items(snippet/title,snippet/channelTitle,contentDetails/duration)");
+                    url = new URL("https://www.googleapis.com/youtube/v3/videos?id=" + videoID + "&key=AIzaSyBD-quFoBeVxEMdgZAcIDUQfokqwBepyOE&part=snippet,contentDetails&fields=items(snippet/title,snippet/channelTitle,contentDetails/duration)");
                     BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
                     String str;
                     while ((str = in.readLine()) != null) {
@@ -88,7 +97,19 @@ public class Videoname {
         //This is pretty miserable but also fast.
 
         String wordsString = allWords.toString().replace("\\\"", "\"");
-        String title = wordsString.split("\"title\": \"")[1].split("\",  ")[0];
+        String title = "";
+        System.out.println("TB4: " + title);
+        title = title.replace("youtu.be/", "www.youtube.com/watch?v=");
+        System.out.println("TA4:" + title);
+
+        try {
+            title = wordsString.split("\"title\": \"")[1].split("\",  ")[0];
+        } catch (java.lang.ArrayIndexOutOfBoundsException e1) {
+            System.out.println("Videoname failed: " + message + " :: " + title);
+            e1.printStackTrace();
+        }
+        if (title.contains("?"))
+            title = title.split("\\?")[0];
         String uploader = wordsString.split("\"channelTitle\": \"")[1].split("\"", 2)[0];
         String duration = wordsString.split("\"duration\": \"")[1].split("\"", 2)[0].substring(2);
 

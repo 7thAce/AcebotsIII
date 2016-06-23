@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 
 import static u.u.*;
 
@@ -91,6 +92,9 @@ public class Filtering {
         public void actionPerformed(ActionEvent e)
         {
             String[] args = getArgs(e);
+            String sender = args[1];
+            String channel = args[0];
+
             if (args[1].equals("jtv") || args[1].equals("nightbot"))
                 return;
             if (acebotCore.isMod(args[0], args[1]))
@@ -161,7 +165,7 @@ public class Filtering {
             if (offenseCount >= 3)
             {
                 logFilter(channel, sender, message, "CC Permaban");
-                acebotCore.addToQueue(channel, "[KAPOW] " + sender + " - Contact a mod if this ban is in error.", 1);
+                acebotCore.addToQueue(channel, "[ KAPOW ] " + sender + " - Contact a mod if this ban is in error.", 1);
                 acebotCore.addToQueue(channel, "/ban " + sender, 1 /*1*/);
             }
             userPunishMap.put(sender.toLowerCase(), offenseCount);
@@ -192,6 +196,12 @@ public class Filtering {
                         punishLevel = Integer.parseInt(filterSplit[0]);
                     }
 
+                    if (filterPhrase.equals("***"))
+                    {
+                        acebotCore.addToQueue(channel, "That cannot be filtered because it is already twitch censored.", Integer.parseInt(source));
+                        return;
+                    }
+
                     if (messageFilterList.contains("1 " + filterPhrase) || messageFilterList.contains("2 " + filterPhrase) || messageFilterList.contains("3 " + filterPhrase))
                     {
                         acebotCore.addToQueue(channel, "That filter already exists!", Integer.parseInt(source));
@@ -215,6 +225,59 @@ public class Filtering {
                         return;
                     }
                     acebotCore.addToQueue(channel, "Filter failed to add.", Integer.parseInt(source));
+                }
+            }
+
+            if (isCommand("delfilter", message)) {
+                if (acebotCore.hasAccess(channel, sender, channelAccess, userAccess, accessExceptionMap)) {
+                    int prevSize = messageFilterList.size();
+                    String filterToRemove = message.split(" ", 2)[1];
+                    ArrayList<String> tempList = new ArrayList<String>(messageFilterList);
+                    for(String filterPhrase:tempList) {
+                        //System.out.println(filterPhrase.substring(2) + " vs. " + filterToRemove);
+                        if (filterToRemove.equalsIgnoreCase(filterPhrase.substring(2)))
+                        {
+                            messageFilterList.remove(filterPhrase);
+                            System.out.println("hard removed filter " + filterPhrase);
+                            logFilter(channel, sender, message, "HARD DELETED FILTER");
+                            acebotCore.addToQueue(channel, "Filter deleted.", Integer.parseInt(source));
+                            //return;
+                        }
+                    }
+                    if (messageFilterList.size() == tempList.size()) {
+                        for (String fPhrase : tempList) {
+                            if (filterToRemove.toLowerCase().contains(fPhrase.substring(2).toLowerCase())) {
+                                messageFilterList.remove(fPhrase);
+                                System.out.println("soft removed filter " + fPhrase);
+                                logFilter(channel, sender, message, "SOFT DELETED FILTER");
+                                acebotCore.addToQueue(channel, "Filter deleted from context.", Integer.parseInt(source));
+                            }
+                        }
+                    }
+
+                    if (messageFilterList.size() == prevSize)
+                    {
+                        acebotCore.addToQueue(channel, "No filters matched the specified phrase.", Integer.parseInt(source));
+                    }
+                    else
+                    {
+                        /*if (prevSize - messageFilterList.size() >= 10)
+                        {
+                            acebotCore.addToQueue(channel, "Too many filters matched the specified phrase.", Integer.parseInt(source));
+                            System.out.println("WARNING: Filter deletion max exceeded!");
+                            return;
+                        }*/
+                        try {
+                            PrintWriter writer = new PrintWriter("filters.txt");
+                            for(String filterPhrase:messageFilterList)
+                            {
+                                writer.println(filterPhrase);
+                            }
+                            writer.close();
+                        } catch (FileNotFoundException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
                 }
             }
         }
@@ -243,7 +306,7 @@ public class Filtering {
                     if (channel.equalsIgnoreCase("#azorae"))
                         return false;
                     logFilter(channel, sender, message, "Purge 2s");
-                    acebotCore.addToQueue(channel, "/timeout " + sender + " 2", 1 /*1*/);
+                    acebotCore.addToQueue(channel, "/timeout " + sender + " 2 Filtered Message level 1. -AB", 1 /*1*/);
                     //acebotCore.addToQueue(channel, "[Warning] Purging " + sender + ".", 1);
                 }
                 if (offenseCount == 2)
@@ -251,14 +314,14 @@ public class Filtering {
                     if (channel.equalsIgnoreCase("#azorae"))
                         return false;
                     logFilter(channel, sender, message, "Timeout 2m");
-                    acebotCore.addToQueue(channel, "/timeout " + sender + " 120", 1 /*1*/);
+                    acebotCore.addToQueue(channel, "/timeout " + sender + " 120 Filtered Message level 2. -AB", 1 /*1*/);
                     acebotCore.addToQueue(channel, "[WARNING] T/O 2m " + sender + ".", 1);
                 }
                 if (offenseCount >= 3)
                 {
                     logFilter(channel, sender, message, "Permaban");
                     if (Integer.parseInt(filterPhrase.substring(0, 1)) != 3)
-                        acebotCore.addToQueue(channel, "[KAPOW] " + sender + " - Contact a mod if this ban is in error.", 1);
+                        acebotCore.addToQueue(channel, "[ KAPOW ] " + sender + " - Contact a mod if this ban is in error.", 1);
                     else
                         /*try {
                             Thread.sleep(500);
@@ -266,13 +329,32 @@ public class Filtering {
                             e.printStackTrace();
                         } */
                         acebotCore.addToQueue(channel, "", 1 /*1*/);
-                    acebotCore.addToQueue(channel, "/ban " + sender, 1 /*1*/);
+                    acebotCore.addToQueue(channel, "/ban " + sender + " Filtered Message level 3. -AB", 1 /*1*/);
 
                 }
                 userPunishMap.put(sender.toLowerCase(), offenseCount);
                 return true;
             }
         }
+
+        /* HISSSS Filter
+        char[] chars = message.toCharArray();
+        java.util.Set<Character> charSet = new LinkedHashSet<Character>();
+        for (char c : chars) {
+            charSet.add(c);
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (Character character : charSet) {
+            sb.append(character);
+        }
+        String modMessage = sb.toString().replace("OSkomodo", "").replace("OSfrog", "").replace(" ", "");
+        System.out.println(modMessage);
+        if(modMessage.equalsIgnoreCase("his") && message.length() > 3 || message.toLowerCase().contains("hissss"))
+        {
+            logFilter(channel, sender, message, "3 min t/o leafy");
+            acebotCore.addToQueue(channel, "/timeout " + sender + " 180", 1);
+        }*/
         return false;
     }
 
@@ -281,8 +363,8 @@ public class Filtering {
         if (userFilterList.contains(sender.toLowerCase()))
         {
             logFilter(channel, sender, "null", "User filter");
-            acebotCore.addToQueue(channel, "/ban " + sender, 1 /*1*/);
-            acebotCore.addToQueue(channel, "[KAPOW] " + sender + " - Be gone foul user!", 1);
+            acebotCore.addToQueue(channel, "/ban " + sender + " Blacklisted User. -AB", 1 /*1*/);
+            acebotCore.addToQueue(channel, "[ KAPOW ] " + sender + " - Be gone foul user!", 1);
             return true;
         }
         return false;
@@ -297,14 +379,14 @@ public class Filtering {
             if (message.startsWith("http") && message.length() < 300)
                 return false;
             logFilter(channel, sender, message, "Long message 150");
-            acebotCore.addToQueue(channel, "/timeout " + sender + " 60", 1 /*1*/);
-    		acebotCore.addToQueue(channel, "[LongMessage] T/O 1m " + sender + ".", 1);
+            acebotCore.addToQueue(channel, "/timeout " + sender + " 60 Long message 1 minute. -AB", 1 /*1*/);
+    		//acebotCore.addToQueue(channel, "[LongMessage] T/O 1m " + sender + ".", 1);
     		return true;
     	}
     	if (message.equals(message.toUpperCase()) && message.length() >= 250)
     	{
             logFilter(channel, sender, message, "Caps 250");
-            acebotCore.addToQueue(channel, "/timeout " + sender + " 120", 1 /*1*/);
+            acebotCore.addToQueue(channel, "/timeout " + sender + " 120 Caps 2 minutes. -AB", 1 /*1*/);
     		acebotCore.addToQueue(channel, "[MassiveCaps] T/O 2m " + sender + ".", 1);
     		return true;
         }

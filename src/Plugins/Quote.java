@@ -69,6 +69,7 @@ public class Quote {
             }
             if (isCommand("addabquote", message))
             {
+                /* Do this some time */
                 //quotesList.add(message.split(" ", 2)[1]);
                 //try {
                 //    PrintWriter writer = new PrintWriter("quotes.txt");

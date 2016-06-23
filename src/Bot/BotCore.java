@@ -45,7 +45,7 @@ public class BotCore extends PircBot {
 
     public BotCore(String username, String password, String server, int port, String initChannel)
     {
-        //setVerbose(true);
+        setVerbose(true);
 
         /**
          * Create a whole bunch of events that can be subscribed to.
@@ -59,7 +59,8 @@ public class BotCore extends PircBot {
         alMap.put("onBotLeave", new ArrayList<ActionListener>());
         alMap.put("onUserJoin", new ArrayList<ActionListener>());
         alMap.put("onUserLeave", new ArrayList<ActionListener>());
-        alMap.put("onFiltered", new ArrayList<ActionListener>());
+        alMap.put("onTimeout", new ArrayList<ActionListener>());
+        alMap.put("onBan", new ArrayList<ActionListener>());
         alMap.put("onReload", new ArrayList<ActionListener>());
         alMap.put("onLogin", new ArrayList<ActionListener>());
         alMap.put("onInternalMessage", new ArrayList<ActionListener>());
@@ -72,14 +73,15 @@ public class BotCore extends PircBot {
         alMap.put("onConnect", new ArrayList<ActionListener>());
         alMap.put("onDisconnect", new ArrayList<ActionListener>());
         alMap.put("onSubscribe", new ArrayList<ActionListener>());
+        alMap.put("onResubscribe", new ArrayList<ActionListener>());
         alMap.put("onGameChange", new ArrayList<ActionListener>());
         alMap.put("onTitleChange", new ArrayList<ActionListener>());
         alMap.put("onStreamGoesOnline", new ArrayList<ActionListener>());
         alMap.put("onStreamGoesOffline", new ArrayList<ActionListener>());
         alMap.put("onServerPing", new ArrayList<ActionListener>());
+        alMap.put("onMessageDenied", new ArrayList<ActionListener>());
 
         messageQueue = new Queue(this);
-
 
         loadUsers();
         bootPluginSystem();
@@ -112,7 +114,8 @@ public class BotCore extends PircBot {
         setName(username);
         //setUser(username);
         try {
-            connect(server, port, password);
+            //connect(server, port, password);
+            connect("irc.chat.twitch.tv", port, password);
             fire("onConnect", new String[]{server, port + "", username});
 
             //acebotsGUI.changeTitle("Acebots II :|: Connected to " + server);
@@ -200,9 +203,10 @@ public class BotCore extends PircBot {
     public void onDisconnect()
     {
         fire("onDisconnect", new String[]{});
+        super.disconnect();
         isConnected = false;
         System.out.println("I HAVE DISCONNECTED");
-        acebotsGUI.setTitle("Acebots III :|: Disconnected");
+        acebotsGUI.setTitle("Acebots III :|: Disconnected");/*
         Timer reconnectTimer = new Timer(15000, reconnectAL);
         if (isConnected)
         {
@@ -210,7 +214,9 @@ public class BotCore extends PircBot {
             return;
         }
         reconnectTimer.setInitialDelay(10000);
-        reconnectTimer.start();
+        reconnectTimer.start();*/
+        new AcebotsIII();
+        //System.exit(1);
     }
 
     ActionListener reconnectAL = new ActionListener() {
@@ -229,6 +235,7 @@ public class BotCore extends PircBot {
                         e1.printStackTrace();
                     }
                 }
+
                 acebotsConnect(info[0], info[1], info[2], 80, info[3]);
             } catch (Exception e1) {
                 System.out.println("asdf error in rc");
@@ -241,6 +248,7 @@ public class BotCore extends PircBot {
     {
         if (sender.equalsIgnoreCase(channel.substring(1)) && message.toLowerCase().equalsIgnoreCase("!kill"))
             System.exit(-5);
+        System.out.println("MESSAGE RECEIVED");
         //This only gets fired for twitchnotify and other non-user messages.
         fire("onMessage", new String[]{channel, sender, message, "#808080", "0", "0", "user"});
         if (message.substring(0, TRIGGER.length()).equals(TRIGGER))
@@ -252,11 +260,6 @@ public class BotCore extends PircBot {
 
         if ((message.contains("subscribed!") || message.contains("subscribed for")) && sender.equalsIgnoreCase("twitchnotify"))
             fire("onSubscribe", new String[]{channel, message.split(" ")[0]});
-    }
-
-    protected void onJoin(String channel, String sender, String login, String hostname)
-    {
-        fire("onUserJoin", new String[]{channel, sender});
     }
 
     protected void onPart(String channel, String sender, String login, String hostname)
@@ -273,7 +276,7 @@ public class BotCore extends PircBot {
     {
         if (mode.contains("+o"))
         {
-            System.out.println(mode.split(" ")[2].toLowerCase() + mode.split(" ")[0]);
+            //System.out.println(mode.split(" ")[2].toLowerCase() + mode.split(" ")[0]);
             modList.add(mode.split(" ")[2].toLowerCase() + mode.split(" ")[0]);
         }
         fire("onUserMode", new String[]{targetNick, sourceNick, mode});
@@ -314,59 +317,234 @@ public class BotCore extends PircBot {
         sendRawLine("PONG " + response);
     }
 
-    protected void onUnknown(String line) {
+    public void onUnknown(String line) {
 
-        String[] messageInfo = line.split(" ", 5);
-        if (line.startsWith("@color"))
+        String origin = "";
+        String[] messageInfo = new String[3];
+        String lineRep = line;
+        while (!origin.contains("tmi.twitch.tv")) {
+            messageInfo = lineRep.split(":", 3);
+            origin = messageInfo[1];
+            lineRep = lineRep.replaceFirst(":", ",");
+        }
+
+        String tags = messageInfo[0];
+        String message = "";
+        if (messageInfo.length >= 3) {
+            message = messageInfo[2];
+        }
+
+        String twitchMessageType = origin.split(" ")[1];
+
+        String channel = origin.split(" ")[2];
+        HashMap<String, String> parameterValueMap = new HashMap<String, String>();
+
+        /*if (origin.split(" ")[0].equals("twitchnotify!twitchnotify@twitchnotify.tmi.twitch.tv"))
         {
-            String[] newTwitchInfo = messageInfo[0].split(";");
+            if (message.endsWith("just subscribed!")) {
+                String sender = message.split(" ")[0];
+                fire("onSubscribe", new String[]{channel, sender});
+                return;
+            }
+        }*/
+
+        if (tags.length() > 0) {
+            String[] tempArray = tags.substring(1).split(";");
+            for (String paramValue:tempArray)
+            {
+                String[] paramValueArray = paramValue.split("=");
+                if (paramValueArray.length == 1) {
+                    parameterValueMap.put(paramValueArray[0], "");
+                } else {
+                    parameterValueMap.put(paramValueArray[0], paramValueArray[1]);
+                }
+            }
+        }
+
+
+        if (twitchMessageType.equals("PRIVMSG") || twitchMessageType.equals("ACTION")) {
+            String sender,userColor, isSubscriber, isTurbo, userType;
+            sender = parameterValueMap.get("display-name");
+            if (sender.equals(""))
+                sender = origin.split("!")[0];
+
+            try {
+                userColor = parameterValueMap.get("color");
+            } catch (ArrayIndexOutOfBoundsException e1) {
+                userColor = "#646464"; //default no specified color
+            }
+            if (sender.equalsIgnoreCase(this.getNick())) {
+                int r, g, b;
+                r = Integer.valueOf(userColor.substring(1, 3), 16);
+                g = Integer.valueOf(userColor.substring(3, 5), 16);
+                b = Integer.valueOf(userColor.substring(5, 7), 16);
+                botColor = new Color(r, g, b);
+            }
+
+            isSubscriber = parameterValueMap.get("subscriber");
+            isTurbo = parameterValueMap.get("turbo");
+
+            try {
+                userType = parameterValueMap.get("user-type");
+            } catch (ArrayIndexOutOfBoundsException e1) {
+                userType = "user"; //default no specified color
+            }
+
+            if (message.length() > 7) {
+                if (message.substring(1, 7).equals("ACTION")) {
+                    fire("onMe", new String[]{channel, sender, message.substring(8, message.length() - 1), userColor, isSubscriber, isTurbo, userType});
+                    return;
+                }
+            }
+
+            fire("onMessage", new String[]{channel, sender, message, userColor, isSubscriber, isTurbo, userType});
+            if (message.substring(0, TRIGGER.length()).equals(TRIGGER))
+                fire("onCommand", new String[]{channel, sender, "1", message});
+            if (message.toLowerCase().startsWith(getNick().toLowerCase() + ", "))
+                fire("onCommand", new String[]{channel, sender, "1", TRIGGER + message.split(" ", 2)[1]});
+            if (message.toLowerCase().startsWith("acebots iii, "))
+                fire("onCommand", new String[]{channel, sender, "1", TRIGGER + message.split(" ", 3)[2]});
+
+        } else if (twitchMessageType.equals("USERNOTICE")) {
+            String sender, messageID, messageParam;
+
+            sender = parameterValueMap.get("display-name");
+            try {
+                messageID = parameterValueMap.get("msg-id");
+            } catch (ArrayIndexOutOfBoundsException e1) {
+                messageID = "";
+            }
+
+            try {
+                messageParam = parameterValueMap.get("msg-param-months");
+            } catch (ArrayIndexOutOfBoundsException e1) {
+                messageParam = "";
+            }
+
+            if (messageID.equals("resub")) {
+                fire("onResubscribe", new String[]{channel, sender, messageParam});
+            }
+        } else if (twitchMessageType.equals("USERSTATE")) {
+            int r, g, b;
+            String userColor = parameterValueMap.get("color");
+            r = Integer.valueOf(userColor.substring(1, 3), 16);
+            g = Integer.valueOf(userColor.substring(3, 5), 16);
+            b = Integer.valueOf(userColor.substring(5, 7), 16);
+            botColor = new Color(r, g, b);
+        }
+
+        /* else if (twitchMessageType.equals("ACTION")) {
+            System.out.println("asdf");
+        }*/
+
+        /*                if (message.contains("ACTION")) {
+                    if (message.substring(1, 7).equals("ACTION"))
+                        fire("onMe", new String[]{channel, sender, message.substring(8, message.length() - 1), userColor, isSubscriber, isTurbo, userType});
+                }
+                else {
+                    fire("onMessage", new String[]{channel, sender, message, userColor, isSubscriber, isTurbo, userType});
+                }
+                if (message.substring(0, TRIGGER.length()).equals(TRIGGER))
+                    fire("onCommand", new String[]{channel, sender, "1", message});
+                if (message.toLowerCase().startsWith(getNick().toLowerCase() + ", "))
+                    fire("onCommand", new String[]{channel, sender, "1", TRIGGER + message.split(" ", 2)[1]});
+                if (message.toLowerCase().startsWith("acebots iii, "))
+                    fire("onCommand", new String[]{channel, sender, "1", TRIGGER + message.split(" ", 3)[2]});*/
+    }
+
+    protected void onUnknownerer(String line) {
+        String[] messageInfo = line.split(" ", 5);
+        String[] newTwitchInfo;
+        if (line.startsWith("@")) {
+            //There is also @broadcaster
+            if (line.startsWith("@ban-reason")) //ban message
+            {
+                System.out.println(1);
+                String reason = messageInfo[0].split("=", 2)[1].replace("\\s", " ");
+                String channel = messageInfo[3];
+                String bannedUser = messageInfo[4].substring(1);
+                fire("onBan", new String[]{channel, bannedUser, reason});
+                return;
+            }
+            if (line.startsWith("@ban-duration")) //timeout message
+            {
+                String duration = messageInfo[0].split(";")[0].split("=")[1];
+                String reason = messageInfo[0].split("=", 3)[2].replace("\\s", " ");;
+                String channel = messageInfo[3];
+                String bannedUser = messageInfo[4].substring(1);
+                fire("onTimeout", new String[]{channel, bannedUser, duration, reason});
+                return;
+            }
+            if (line.startsWith("@color")) {
+                newTwitchInfo = ("@badges=;" + messageInfo[0].substring(1)).split(";");
+            }
+            else {
+                newTwitchInfo = messageInfo[0].split(";");
+            }
+            /* Twitchinfo array
+            0 - Badges
+            1 - Color
+            2 - Display Name
+            3 - Emotes (#)
+            4 - Mod (0/1)
+            5 - Room ID (#)
+            6 - Subscriber (0/1)
+            7 - Turbo (0/1)
+            8 - User ID (#)
+            9 - User Type (Mod, Admin, etc.)
+            */
+
+            String badges = newTwitchInfo[0];
             String userColor;
             try {
-                userColor = newTwitchInfo[0].split("=")[1];
-            }  catch (ArrayIndexOutOfBoundsException e1) {
+                userColor = newTwitchInfo[1].split("=")[1];
+            } catch (ArrayIndexOutOfBoundsException e1) {
                 userColor = "#646464"; //default no specified color
             }
 
             String sender;
             try {
-                sender = newTwitchInfo[1].split("=")[1];
+                sender = newTwitchInfo[2].split("=")[1];
             } catch (ArrayIndexOutOfBoundsException e1) {
-                sender = messageInfo[1].split("!")[0].substring(1);
+                sender = messageInfo[2].split("!")[0].substring(1);
             }
 
-            if (sender.equalsIgnoreCase(this.getNick()))
-            {
-                int r,g,b;
+            if (sender.equalsIgnoreCase(this.getNick())) {
+                int r, g, b;
                 r = Integer.valueOf(userColor.substring(1, 3), 16);
                 g = Integer.valueOf(userColor.substring(3, 5), 16);
                 b = Integer.valueOf(userColor.substring(5, 7), 16);
-                botColor = new Color(r,g,b);
-            }
-            else
-            {
+                botColor = new Color(r, g, b);
+            } else {
                 //  String userEmotes = newTwitchInfo[2].split("=")[1];
-                String isSubscriber = newTwitchInfo[3].split("=")[1];
-                String isTurbo = newTwitchInfo[4].split("=")[1];
+                String isSubscriber = newTwitchInfo[6].split("=")[1];
+                String isTurbo = newTwitchInfo[7].split("=")[1];
 
                 String userType;
                 try {
-                    userType = newTwitchInfo[5].split("=")[1];
-                }  catch (ArrayIndexOutOfBoundsException e1) {
+                    userType = newTwitchInfo[9].split("=")[1];
+                } catch (ArrayIndexOutOfBoundsException e1) {
                     userType = "user";
                 }
 
                 String channel = messageInfo[3];
                 String message = messageInfo[4].substring(1);
 
-                if (userType.equals("mod")) {
+                /*if (userType.equals("mod")) {
                     if (!modList.contains(sender.toLowerCase() + addHash(channel))) {
                         System.out.println("Added mod " + sender + addHash(channel));
                         modList.add(sender.toLowerCase() + addHash(channel));
                         //Super shitty temporary fix thing.
                     }
-                }
+                }*/
 
-                fire("onMessage", new String[]{channel, sender, message, userColor, isSubscriber, isTurbo, userType});
+                if (message.contains("ACTION")) {
+                    if (message.substring(1, 7).equals("ACTION"))
+                        fire("onMe", new String[]{channel, sender, message.substring(8, message.length() - 1), userColor, isSubscriber, isTurbo, userType});
+                }
+                else {
+                    fire("onMessage", new String[]{channel, sender, message, userColor, isSubscriber, isTurbo, userType});
+                }
                 if (message.substring(0, TRIGGER.length()).equals(TRIGGER))
                     fire("onCommand", new String[]{channel, sender, "1", message});
                 if (message.toLowerCase().startsWith(getNick().toLowerCase() + ", "))
@@ -375,8 +553,34 @@ public class BotCore extends PircBot {
                     fire("onCommand", new String[]{channel, sender, "1", TRIGGER + message.split(" ", 3)[2]});
             }
         }
-            //super.handleLine(line.split(" ", 2)[1]);
-        //System.out.println("And then there was twitch.");
+        if (line.startsWith("@msg-id=msg_duplicate"))
+        {
+            newTwitchInfo = line.split(" ");
+            String channel = newTwitchInfo[3];
+            printlnChannel(channel, "[" + BotCore.sdf.format(new Date()) + "] Message failed to send to Twitch (Identical message within 30 seconds).", graphics.acebotsthree.TIMECOLOR);
+            printlnAll("[" + BotCore.sdf.format(new Date()) + "] Message failed to send to Twitch (Identical message within 30 seconds).", graphics.acebotsthree.TIMECOLOR);
+        }
+        if (line.startsWith("@msg-id=msg_ratelimit"))
+        {
+            newTwitchInfo = line.split(" ");
+            String channel = newTwitchInfo[3];
+            printlnChannel(channel, "[" + BotCore.sdf.format(new Date()) + "] Message failed to send to Twitch (Sending messages too fast).", graphics.acebotsthree.TIMECOLOR);
+            printlnAll("[" + BotCore.sdf.format(new Date()) + "] Message failed to send to Twitch (Sending messages too fast).", graphics.acebotsthree.TIMECOLOR);
+        }
+
+        /*String str = line;
+        String findStr = "cirLewd";
+        int lastIndex = 0;
+        while(lastIndex != -1){
+
+            lastIndex = str.indexOf(findStr,lastIndex);
+
+            if(lastIndex != -1){
+                lewdCount ++;
+                lastIndex += findStr.length();
+            }
+        }
+        System.out.println("cirLewd count: " + lewdCount);*/
     }
 
 
@@ -710,7 +914,7 @@ public class BotCore extends PircBot {
         return classes;
     }
 
-    @Deprecated
+    //@Deprecated
     public boolean hasAccess(String channel, String user, int cReqAccess, int uReqAccess, HashMap<String, Integer> exceptionMap)
     {
         int userAccess;
@@ -740,14 +944,12 @@ public class BotCore extends PircBot {
             }
         }
 
-        System.out.println("HA: " + channel);
         if (isMod(channel, user))
             userAccess = Math.max(3, userAccess);
 
         if (channel.substring(1).equalsIgnoreCase(user))
             userAccess = Math.max(4, userAccess);
 
-        System.out.println("FA: " + userAccess);
         if (userAccess >= uReqAccess && channelAccess >= cReqAccess)
         {
             return true;
@@ -982,7 +1184,7 @@ public class BotCore extends PircBot {
 
     public void printChannel(String channel, String message, Color messageColor)
     {
-        try{
+        try {
             appendTextPane(messageColor, message, getChannel(channel).getLeftChatBox());
             appendTextPane(messageColor, message, getChannel(channel).getRightChatBox());
         } catch (Exception e) {

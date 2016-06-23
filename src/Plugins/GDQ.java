@@ -43,15 +43,15 @@ public class GDQ {
             String sender = args[1];
             String source = args[2];
             String message = args[3];
-            if (isCommand("sgdq", message))
+            if (isCommand("agdq", message))
             {
                 if (acebotCore.hasAccess(channel, sender, channelAccess, userAccess, accessExceptionMap))
                 {
-                    if (message.substring(1).equals("sgdq"))
+                    if (message.substring(1).equals("agdq"))
                     {
                         Calendar start = Calendar.getInstance();
                         Calendar end = Calendar.getInstance();
-                        start.set(2015, 7, 26, 12, 0, 0);
+                        start.set(2016, Calendar.JANUARY, 3, 11, 0, 0);
                         SimpleDateFormat sdf = new SimpleDateFormat("y M d H m s");
                         String date = sdf.format(new Date());
                         System.out.println(date);
@@ -72,8 +72,7 @@ public class GDQ {
                         start.add(Calendar.DAY_OF_MONTH, -1);
                         diffDays--;
                     }    */
-                        if (diffDays >= 0)
-                            acebotCore.addToQueue(channel, "SGDQ is in " + diffDays + " days (Jul 26 - Aug 1 @ Minneapolis, MN).  Schedule at https://gamesdonequick.com/schedule", Integer.parseInt(source));
+                            acebotCore.addToQueue(channel, "AGDQ 2016 is live at twitch.tv/gdq - Schedule at https://gamesdonequick.com/schedule", Integer.parseInt(source));
                     }
                 }
             }

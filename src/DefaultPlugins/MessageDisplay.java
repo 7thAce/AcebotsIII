@@ -23,7 +23,60 @@ public class MessageDisplay {
         acebotCore.subscribe("onMessage", new MessageActionListener());
         acebotCore.subscribe("onMe", new EmoteActionListener());
         acebotCore.subscribe("onPrivateMessage", new PMActionListener());
+        acebotCore.subscribe("onTimeout", new TimeoutActionListener());
+        acebotCore.subscribe("onBan", new BanActionListener());
         //acebotCore.subscribe("onPrivateMessage", new PrivateActionListener());
+    }
+
+    private class TimeoutActionListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            String[] args = getArgs(e);
+            String channel = args[0];
+            String bannedUser = args[1];
+            String duration = args[2];
+
+            if (args.length > 3) {
+                String reason = args[3];
+
+                acebotCore.printChannel(channel, "[" + BotCore.sdf.format(new Date()) + "] ", graphics.acebotsthree.TIMECOLOR); //Time stamp
+                acebotCore.printlnChannel(channel, bannedUser + " has been timed out for " + duration + " seconds. (" + reason + ")", new Color(67, 202, 247));
+
+                acebotCore.printAll("[" + BotCore.sdf.format(new Date()) + "] ", graphics.acebotsthree.TIMECOLOR);
+                acebotCore.printlnAll(channel + ": " + bannedUser + " has been timed out for " + duration + " seconds. (" + reason + ")", new Color(67, 202, 247));
+            }
+            else {
+                acebotCore.printChannel(channel, "[" + BotCore.sdf.format(new Date()) + "] ", graphics.acebotsthree.TIMECOLOR); //Time stamp
+                acebotCore.printlnChannel(channel, bannedUser + " has been timed out for " + duration + " seconds.", new Color(67, 202, 247));
+
+                acebotCore.printAll("[" + BotCore.sdf.format(new Date()) + "] ", graphics.acebotsthree.TIMECOLOR);
+                acebotCore.printlnAll(channel + ": " + bannedUser + " has been timed out for " + duration + " seconds.", new Color(67, 202, 247));
+            }
+        }
+    }
+
+    private class BanActionListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            String[] args = getArgs(e);
+            String channel = args[0];
+            String bannedUser = args[1];
+            String reason;
+            if (args.length > 2) {
+                reason = args[2];
+                acebotCore.printChannel(channel, "[" + BotCore.sdf.format(new Date()) + "] ", graphics.acebotsthree.TIMECOLOR); //Time stamp
+                acebotCore.printlnChannel(channel, bannedUser + " has been banned. (" + reason + ")", new Color(67, 202, 247));
+
+                acebotCore.printAll("[" + BotCore.sdf.format(new Date()) + "] ", graphics.acebotsthree.TIMECOLOR);
+                acebotCore.printlnAll(channel + ": " + bannedUser + " has been banned. (" + reason + ")", new Color(67, 202, 247));
+            }
+            else
+            {
+                acebotCore.printChannel(channel, "[" + BotCore.sdf.format(new Date()) + "] ", graphics.acebotsthree.TIMECOLOR); //Time stamp
+                acebotCore.printlnChannel(channel, bannedUser + " has been banned.", new Color(67, 202, 247));
+
+                acebotCore.printAll("[" + BotCore.sdf.format(new Date()) + "] ", graphics.acebotsthree.TIMECOLOR);
+                acebotCore.printlnAll(channel + ": " + bannedUser + " has been banned.", new Color(67, 202, 247));
+            }
+        }
     }
 
     private class PMActionListener implements ActionListener {
@@ -137,8 +190,8 @@ public class MessageDisplay {
                 //else if (messageArgs[0].equals("EMOTESET"))
                 //        System.out.println(message.split(" ")[1] + " is subbed to " + (message.split(",").length - 1));*/
             }
-            if (args[1].equalsIgnoreCase("twitchnotify"))
-                System.out.println(args[2]);
+            //if (args[1].equalsIgnoreCase("twitchnotify"))
+            //    System.out.println(args[2]);
         }
     }
 
@@ -146,12 +199,63 @@ public class MessageDisplay {
         public void actionPerformed(ActionEvent e)
         {
             String[] args = getArgs(e);
+            String channel = args[0];
+            String sender = args[1];
+            String message = args[2];
+            String userColor = args[3];
+            boolean isSubscriber = args[4].equals("1");
+            boolean isTurbo = args[5].equals("1");
+            String userType = args[6];
 
-            acebotCore.printChannel(args[0],  "[" + BotCore.sdf.format(new Date())+ "] ", graphics.acebotsthree.TIMECOLOR);
-            acebotCore.printlnChannel(args[0], args[1] + " " + args[2], new Color(180,0,0));
+            StringBuilder prefix = new StringBuilder();
+
+            int r=0,g=0,b=0;
+            try {
+                if (userColor.equals("")) {
+                    r = g = b = 100;
+                } else {
+                    r = Integer.valueOf(userColor.substring(1, 3), 16);
+                    g = Integer.valueOf(userColor.substring(3, 5), 16);
+                    b = Integer.valueOf(userColor.substring(5, 7), 16);
+                }
+            } catch (Exception e1)
+            {
+                System.out.println("Color error: " + userColor + " :|: " + sender + " :|: " + message);
+                e1.printStackTrace();
+            }
+
+            if (userType.equals("mod")) {
+                if (sender.equalsIgnoreCase(channel.substring(1)))
+                    prefix.append("B");
+                else
+                    prefix.append("M");
+            }
+            else if (userType.equals("global_mod")) {
+                prefix.append("G"); } else
+            if (userType.equals("admin")) {
+                prefix.append("A"); }else
+            if (userType.equals("staff")) {
+                prefix.append("F"); }
+
+            if (isSubscriber)
+                prefix.append("S");
+            if (isTurbo)
+                prefix.append("T");
+
+            String stringPrefix;
+            if (prefix.length() > 0)
+                stringPrefix = "[" + prefix.toString() + "]";
+            else
+                stringPrefix = "";
+
+            //                acebotCore.printChannel(args[0], stringPrefix + sender + ": ", new Color(r, g, b));
+
+
+            acebotCore.printChannel(channel,  "[" + BotCore.sdf.format(new Date())+ "] ", graphics.acebotsthree.TIMECOLOR);
+            acebotCore.printlnChannel(channel, stringPrefix + sender + " " + message, new Color(r,g,b));
 
             acebotCore.printAll("[" + BotCore.sdf.format(new Date()) + "] ", graphics.acebotsthree.TIMECOLOR);
-            acebotCore.printlnAll(args[1] + args[0].substring(0,4) + " " + args[2], new Color(180,0,0));
+            acebotCore.printlnAll(stringPrefix + sender + " " + message.substring(0,4) + " " + message, new Color(r,g,b));
         }
     }
     /*

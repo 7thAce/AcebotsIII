@@ -40,7 +40,7 @@ public class StreamStatus {
         return gameStart;
     }
 
-    private void setGameStart(Calendar newGameStart)
+    public void setGameStart(Calendar newGameStart)
     {
         gameStart = newGameStart;
     }

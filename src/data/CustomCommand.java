@@ -1,7 +1,5 @@
 package data;
 
-import java.util.Date;
-
 public class CustomCommand {
 
 	private String name;
@@ -29,6 +27,8 @@ public class CustomCommand {
 		response = cmdResponse;
 		userAccess = 1;
 		channelAccess = 1;
+
+
 	}
 	
 	public CustomCommand(String cmdName, int uAccess, int cAccess, String cmdResponse, String cmdChannel)
