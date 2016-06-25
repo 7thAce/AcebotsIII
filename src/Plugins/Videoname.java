@@ -77,7 +77,8 @@ public class Videoname {
             if (word.contains("youtube.com/watch"))
             {
                 String videoID = word.split("youtube.com/watch\\?v=")[1];
-
+                if (videoID.contains("?"))
+                    videoID = videoID.split("\\?")[0];
                 try {                                                                                 //YOU NEED A GOOGLE API KEY INSTRUCTIONS EVENTUALLY TM
                     url = new URL("https://www.googleapis.com/youtube/v3/videos?id=" + videoID + "&key=AIzaSyBD-quFoBeVxEMdgZAcIDUQfokqwBepyOE&part=snippet,contentDetails&fields=items(snippet/title,snippet/channelTitle,contentDetails/duration)");
                     BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
@@ -98,9 +99,7 @@ public class Videoname {
 
         String wordsString = allWords.toString().replace("\\\"", "\"");
         String title = "";
-        System.out.println("TB4: " + title);
         title = title.replace("youtu.be/", "www.youtube.com/watch?v=");
-        System.out.println("TA4:" + title);
 
         try {
             title = wordsString.split("\"title\": \"")[1].split("\",  ")[0];
@@ -108,16 +107,13 @@ public class Videoname {
             System.out.println("Videoname failed: " + message + " :: " + title);
             e1.printStackTrace();
         }
-        if (title.contains("?"))
-            title = title.split("\\?")[0];
+
         String uploader = wordsString.split("\"channelTitle\": \"")[1].split("\"", 2)[0];
         String duration = wordsString.split("\"duration\": \"")[1].split("\"", 2)[0].substring(2);
 
         String minutes = "0";
         String seconds = "";
         String hours = "";
-
-        System.out.println(duration + " + d");
 
         //Thanks to Roflcopter
         if (duration.contains("H")) {
@@ -188,7 +184,6 @@ public class Videoname {
             }
         }
         String temp = allWords.toString().split("<title>")[1].split("</title>")[0];
-        System.out.println("Temp: " + temp);
         String title = "\"" + temp.split(" - ")[1] + "\"";
         String uploader =  temp.split(" - ")[0];
         return "Linked Twitch VOD - " + title + " by " + uploader;

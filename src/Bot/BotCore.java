@@ -45,7 +45,7 @@ public class BotCore extends PircBot {
 
     public BotCore(String username, String password, String server, int port, String initChannel)
     {
-        setVerbose(true);
+        //setVerbose(true);
 
         /**
          * Create a whole bunch of events that can be subscribed to.
@@ -189,6 +189,34 @@ public class BotCore extends PircBot {
         } catch (Exception e) {
             System.out.println("Error in event: " + event);
             e.printStackTrace();
+
+            String channelError = "";
+            for (String arg:argumentsArray)
+            {
+                if (arg.startsWith("#"))
+                {
+                    channelError = arg.toLowerCase();
+                    break;
+                }
+            }
+
+            printAll("[" + BotCore.sdf.format(new Date()) + "] ", acebotsthree.TIMECOLOR);
+            printlnAll("Error in event " + event + ".", new Color(255, 96, 93));
+            printAll("[" + BotCore.sdf.format(new Date()) + "] ", acebotsthree.TIMECOLOR);
+            printlnAll(e.toString(), new Color(255, 107, 104));
+            printAll("[" + BotCore.sdf.format(new Date()) + "] ", acebotsthree.TIMECOLOR);
+            printlnAll(e.getStackTrace()[0].toString(), new Color(255, 107, 104));
+
+            if (!channelError.equals(""))
+            {
+                System.out.println("CHANNEL ERROR: " + channelError);
+                printChannel(channelError, "[" + BotCore.sdf.format(new Date()) + "] ", acebotsthree.TIMECOLOR);
+                printlnChannel(channelError, "Error in event " + event + ".", new Color(255, 107, 104));
+                printChannel(channelError, "[" + BotCore.sdf.format(new Date()) + "] ", acebotsthree.TIMECOLOR);
+                printlnChannel(channelError, e.toString(), new Color(255, 107, 104));
+                printChannel(channelError, "[" + BotCore.sdf.format(new Date()) + "] ", acebotsthree.TIMECOLOR);
+                printlnChannel(channelError, e.getStackTrace()[0].toString(), new Color(255, 107, 104));
+            }
         }
     }
 
@@ -215,7 +243,7 @@ public class BotCore extends PircBot {
         }
         reconnectTimer.setInitialDelay(10000);
         reconnectTimer.start();*/
-        new AcebotsIII();
+        //new AcebotsIII();
         //System.exit(1);
     }
 
@@ -248,7 +276,6 @@ public class BotCore extends PircBot {
     {
         if (sender.equalsIgnoreCase(channel.substring(1)) && message.toLowerCase().equalsIgnoreCase("!kill"))
             System.exit(-5);
-        System.out.println("MESSAGE RECEIVED");
         //This only gets fired for twitchnotify and other non-user messages.
         fire("onMessage", new String[]{channel, sender, message, "#808080", "0", "0", "user"});
         if (message.substring(0, TRIGGER.length()).equals(TRIGGER))
@@ -1161,13 +1188,11 @@ public class BotCore extends PircBot {
     public void printlnChannel(String channel, String message, Color messageColor)
     {
         try{
-        appendTextPane(messageColor, message + "\n", getChannel(channel).getLeftChatBox());
-        appendTextPane(messageColor, message + "\n", getChannel(channel).getRightChatBox());
-    } catch (Exception e) {
-        e.printStackTrace();
-        System.out.println("Error: " + channel);
-        System.out.println("Message: " + message);
-    }
+            appendTextPane(messageColor, message + "\n", getChannel(channel).getLeftChatBox());
+            appendTextPane(messageColor, message + "\n", getChannel(channel).getRightChatBox());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void printlnAll(String message, Color messageColor)

@@ -63,13 +63,16 @@ public class Subhype {
             String channel = args[0];
             String sender = args[1];
             String monthsResubbed = args[2];
-            System.out.println("Made it to the resub listener");
             if (channel.equals("#cirno_tv") || channel.equals("cirno_tv")) {
                 if (monthsResubbed.equals("9")) {
                     acebotCore.addToQueue("#cirno_tv", "cirMini Thank you for your continued support to the Baka Brigade " + sender + "! cirMini", BotCore.OUTPUT_CHANNEL);
                 } else {
                     acebotCore.addToQueue("#cirno_tv", "Thank you for your continued support to the Baka Brigade " + sender + "! cirFairy", BotCore.OUTPUT_CHANNEL);
                 }
+            }
+
+            if (channel.equals("#azorae") || channel.equals("azorae")) {
+                acebotCore.addToQueue("#azorae", "Happy Squidiversary, " + sender + "! azoSquid", BotCore.OUTPUT_CHANNEL);
             }
         }
     }

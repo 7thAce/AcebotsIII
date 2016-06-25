@@ -15,6 +15,9 @@ public class u {
     {
         StyledDocument doc = box.getStyledDocument();
         Style style = box.addStyle("style", null);
+        /*if (color == null) {
+            color = new Color(255, 255, 255);
+        }*/
         StyleConstants.setForeground(style, color);
         box.setCaretPosition(doc.getLength());
         try {
@@ -158,5 +161,13 @@ public class u {
     		return true;
     	else
     		return false;
+    }
+
+    public static HashMap<String, Integer> fillAccessExceptionMap(String[] cmdInfo)
+    {
+        HashMap<String, Integer> accessExceptionMap = new HashMap<String, Integer>();
+        for (int i = 3; i < cmdInfo.length; i++)
+            accessExceptionMap.put(cmdInfo[i].substring(1).toLowerCase(), Integer.parseInt(cmdInfo[i].substring(0,1)));
+        return accessExceptionMap;
     }
 }
