@@ -389,6 +389,7 @@ public abstract class PircBot implements ReplyConstants {
      */
     public final synchronized void sendRawLine(String line) {
         if (isConnected()) {
+            System.out.println("Sending Raw Line: " + line);
             _inputThread.sendRawLine(line);
         }
     }

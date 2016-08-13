@@ -1,0 +1,11 @@
+src/Plugins/Bnetstats.java
+src/Plugins/Binpdf.java
+src/Plugins/ListCreator.java
+src/DefaultPlugins/Wrlink.java
+src/data/TwitchList.java
+src/Plugins/YoutubeSearcher.java
+src/Plugins/YoutubeSearcher.java
+src/Plugins/Temperature.java
+src/Plugins/Host.java
+src/Plugins/Alert.java
+src/Plugins/Pokedex.java

@@ -31,7 +31,7 @@ public class Subhype {
                 if (channel.equalsIgnoreCase("#cirno_tv"))
                     acebotCore.addToQueue("#cirno_tv", "Get cirHonk 'd on " + message.split(" ")[0] + "!  Welcome to the Baka Brigade!", BotCore.OUTPUT_CHANNEL);
                 else if (channel.equalsIgnoreCase("#professorbroman"))
-                    acebotCore.addToQueue("#professorbroman", message.split(" ")[0] + " is now Legendary!  Welcome to BroMERICA!",BotCore.OUTPUT_CHANNEL);
+                    acebotCore.addToQueue("#professorbroman", "Welcome to Fat Naysh " + message.split(" ")[0] + "!",BotCore.OUTPUT_CHANNEL);
                 else if (channel.equalsIgnoreCase("#azorae"))
                     acebotCore.addToQueue("#azorae", "Take a azoPeek at the new sub " + message.split(" ")[0] + "!",BotCore.OUTPUT_CHANNEL);
                 //else if (channel.equalsIgnoreCase("#admiral_bahroo"))

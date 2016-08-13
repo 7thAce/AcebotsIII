@@ -6,6 +6,7 @@ import Bot.BotCore;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
 import java.util.Date;
 
 import static u.u.*;
@@ -153,6 +154,20 @@ public class MessageDisplay {
                 acebotCore.printAll("[" + BotCore.sdf.format(new Date()) + "] ", graphics.acebotsthree.TIMECOLOR);
                 acebotCore.printAll(stringPrefix + sender + channel.substring(0,4) + ": ", new Color(r, g, b));
                 acebotCore.printlnAll(args[2], new Color(230, 230, 230));
+
+                /*try {
+                    FileWriter fw = new FileWriter("log.txt", true);
+                    BufferedWriter bw = new BufferedWriter(fw);
+                    PrintWriter out = new PrintWriter(bw);
+                    out.println("[" + BotCore.sdf.format(new Date()) + "] " + sender + channel.substring(0,4) + ": " + args[2]);
+                    out.close();
+                    bw.close();
+                    fw.close();
+                } catch (FileNotFoundException e1) {
+                    e1.printStackTrace();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }*/
             }
             else
             {

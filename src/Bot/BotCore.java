@@ -209,7 +209,6 @@ public class BotCore extends PircBot {
 
             if (!channelError.equals(""))
             {
-                System.out.println("CHANNEL ERROR: " + channelError);
                 printChannel(channelError, "[" + BotCore.sdf.format(new Date()) + "] ", acebotsthree.TIMECOLOR);
                 printlnChannel(channelError, "Error in event " + event + ".", new Color(255, 107, 104));
                 printChannel(channelError, "[" + BotCore.sdf.format(new Date()) + "] ", acebotsthree.TIMECOLOR);

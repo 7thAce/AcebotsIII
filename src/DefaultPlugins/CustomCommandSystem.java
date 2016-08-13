@@ -130,7 +130,7 @@ public class CustomCommandSystem {
                     } catch (FileNotFoundException e1) {
                         e1.printStackTrace();
                     }
-
+                    System.out.println(sender + " created " + args[1] + " with response " + commandMap.get(args[1].toLowerCase() + channel));
                     acebotCore.addToQueue(channel, "Added/edited command " + args[1] + ".", Integer.parseInt(source));
 				}
 			}

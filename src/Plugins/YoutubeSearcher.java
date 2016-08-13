@@ -49,7 +49,7 @@ public class YoutubeSearcher {
                     String keywords = message.split(" ", 2)[1];
                     StringBuilder allWords = new StringBuilder();
                     try {
-                        URL url = new URL("https://www.googleapis.com/youtube/v3/search?part=snippet&q=" + keywords.replace(" ", "+") + "&type=video&key=<insertkeyhere>");
+                        URL url = new URL("https://www.googleapis.com/youtube/v3/search?part=snippet&q=" + keywords.replace(" ", "+") + "&type=video&key=AIzaSyBD-quFoBeVxEMdgZAcIDUQfokqwBepyOE");
                         BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
                         String str;
                         while ((str = in.readLine()) != null) {
